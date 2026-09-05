@@ -14,7 +14,7 @@ pub fn workspaces_file(config_dir: &Path) -> PathBuf {
 }
 
 /// Load workspace state.
-/// - If file missing -> seeded default (Development/Research/Design) without writing (lazy).
+/// - If file missing -> seeded default (single empty "Workspace 1") without writing (lazy).
 /// - If parse fails -> log WARN and return seeded default (avoid bricking on corruption).
 /// - If file exists and parses -> return it (normalize order).
 pub fn load_workspaces(config_dir: &Path) -> WorkspaceState {

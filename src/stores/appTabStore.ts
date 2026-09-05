@@ -30,30 +30,14 @@ type AppTabStoreState = {
   prevAppTab: (osTabId: string) => void;
 };
 
-const seeded: Record<string, AppTab[]> = {
-  dev: [
-    { id: "dev-vscode-1", appId: "vscode", osTabId: "dev", label: "VS Code", state: "active", lastFocusedAt: now - 1000 },
-    { id: "dev-chrome-1", appId: "chrome", osTabId: "dev", label: "Chrome", state: "background", lastFocusedAt: now - 2000 },
-    { id: "dev-terminal-1", appId: "terminal", osTabId: "dev", label: "Terminal", state: "optimizing", lastFocusedAt: now - 3000 },
-  ],
-  research: [
-    { id: "research-chrome-1", appId: "chrome", osTabId: "research", label: "Chrome", state: "background", lastFocusedAt: now - 1500 },
-    { id: "research-pdf-1", appId: "pdf", osTabId: "research", label: "PDF Reader", state: "protected", lastFocusedAt: now - 2500 },
-  ],
-  design: [
-    { id: "design-figma-1", appId: "figma", osTabId: "design", label: "Figma", state: "error", lastFocusedAt: now - 1800 },
-  ],
-};
-
-const seededActive: Record<string, string | null> = {
-  dev: "dev-vscode-1",
-  research: "research-chrome-1",
-  design: "design-figma-1",
-};
+// honey: no seeded/mock app tabs (previously VS Code/Chrome/Terminal/PDF/Figma
+// demo data). Every OS Tab starts empty; app tabs are only created for real
+// via addAppTab() when the user actually launches something.
+void now;
 
 export const useAppTabStore = create<AppTabStoreState>((set, get) => ({
-  appTabsByOsTab: seeded,
-  activeAppTabIdByOsTab: seededActive,
+  appTabsByOsTab: {},
+  activeAppTabIdByOsTab: {},
   lastLifecycleByAppTabId: {},
 
   addAppTab: (osTabId, descriptor) => {

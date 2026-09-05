@@ -62,30 +62,18 @@ impl Default for WorkspaceState {
 }
 
 impl WorkspaceState {
-    /// Seeded default for first-run MVP: 3 tabs Development/Research/Design.
-    /// frontend workspaceStore uses same names; ids are UUIDs (backend authority).
+    /// Seeded default for first-run: exactly ONE empty workspace ("Workspace 1"),
+    /// no demo/mock content. Real workspaces/app tabs are created by the user.
     pub fn seeded_default() -> Self {
         let w1 = Workspace {
             id: uuid::Uuid::new_v4().to_string(),
-            name: "Development".to_string(),
+            name: "Workspace 1".to_string(),
             order: 0,
-            app_tab_ids: Vec::new(),
-        };
-        let w2 = Workspace {
-            id: uuid::Uuid::new_v4().to_string(),
-            name: "Research".to_string(),
-            order: 1,
-            app_tab_ids: Vec::new(),
-        };
-        let w3 = Workspace {
-            id: uuid::Uuid::new_v4().to_string(),
-            name: "Design".to_string(),
-            order: 2,
             app_tab_ids: Vec::new(),
         };
         let active = Some(w1.id.clone());
         Self {
-            workspaces: vec![w1, w2, w3],
+            workspaces: vec![w1],
             active_workspace_id: active,
             app_tabs: Vec::new(),
         }

@@ -71,6 +71,10 @@ export default function AppShell(): JSX.Element {
       try {
         const { listen } = await import("@tauri-apps/api/event");
         unlisten = await listen<{ id: string; idStr: string; accelerator: string }>("azalea:hotkey", (event) => {
+          // honey: debug trace - if this never logs in DevTools console while the
+          // Rust log shows "hotkey.triggered", the running binary is a stale build
+          // (rebuild with `npm run tauri build` / restart `tauri dev`).
+          console.debug("[AzaleaOS] azalea:hotkey received", event.payload);
           const { id, idStr } = event.payload;
           const launcher = useLauncherStore.getState();
           const ws = useWorkspaceStore.getState();

@@ -14,10 +14,10 @@ function uid(): string {
   return `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`;
 }
 
+// honey: no seeded/mock workspaces - a fresh install starts with exactly one
+// empty default OS Tab, created for real at store init (not hardcoded demo data).
 const initialTabs: OsTab[] = [
-  { id: "dev", name: "Development", createdAt: Date.now() - 3000, order: 0 },
-  { id: "research", name: "Research", createdAt: Date.now() - 2000, order: 1 },
-  { id: "design", name: "Design", createdAt: Date.now() - 1000, order: 2 },
+  { id: "default", name: "Workspace 1", createdAt: Date.now(), order: 0 },
 ];
 
 type WorkspaceState = {
