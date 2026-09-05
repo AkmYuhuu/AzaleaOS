@@ -1,0 +1,12 @@
+{
+  "$schema": "../capabilities-schema.json",
+  "identifier": "default",
+  "description": "Default capabilities for AzaleaOS Full - STEP 20 IPC Hardening Audit: explicit narrow allowlist (global-shortcut only), no shell/fs/dialog, no wildcard, no execute_anything/run_shell. All Tauri commands are app-local narrow DTOs (camelCase).",
+  "windows": ["main"],
+  "permissions": [
+    "global-shortcut:allow-is-registered",
+    "global-shortcut:allow-register",
+    "global-shortcut:allow-unregister",
+    "global-shortcut:allow-unregister-all"
+  ]
+}

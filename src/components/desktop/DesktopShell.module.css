@@ -1,0 +1,97 @@
+.shell {
+  display: flex;
+  height: 100vh;
+  height: 100dvh;
+  width: 100%;
+  overflow: hidden;
+  background: var(--color-bg);
+  color: var(--color-text);
+}
+
+.main {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  background: var(--color-bg);
+  position: relative;
+}
+
+.resourcePlaceholder {
+  display: none;
+  /* Reserved for future ResourceBar - zero height now so no gap */
+  height: 0;
+  flex-shrink: 0;
+}
+
+.workspaceArea {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  background: var(--color-bg);
+}
+
+.restoreBtn {
+  position: fixed;
+  left: 10px;
+  top: 10px;
+  z-index: 20;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  height: 32px;
+  padding: 0 10px 0 8px;
+  border-radius: var(--radius-pill);
+  border: 1px solid var(--color-border);
+  background: var(--color-surface);
+  color: var(--color-text-muted);
+  font-size: var(--text-xs);
+  font-weight: var(--weight-medium);
+  box-shadow: var(--shadow-md);
+  transition:
+    background var(--duration-fast) var(--ease-default),
+    border-color var(--duration-fast) var(--ease-default),
+    color var(--duration-fast) var(--ease-default);
+}
+
+.restoreBtn:hover {
+  background: var(--color-surface-raised);
+  color: var(--color-text);
+  border-color: var(--color-border-strong);
+}
+
+.restoreBtn:focus-visible {
+  outline: 2px solid var(--color-focus-ring);
+  outline-offset: 2px;
+}
+
+.restoreLabel {
+  font-size: var(--text-xs);
+}
+
+.restoreKbd {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.02em;
+  color: var(--color-text-faint);
+  background: var(--color-bg-subtle);
+  border: 1px solid var(--color-border);
+  border-radius: 4px;
+  padding: 1px 4px;
+  line-height: 1;
+}
+
+@media (max-width: 768px) {
+  .restoreKbd {
+    display: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .restoreBtn {
+    transition: none !important;
+  }
+}

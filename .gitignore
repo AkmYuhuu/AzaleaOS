@@ -1,0 +1,39 @@
+node_modules
+dist
+dist-ssr
+*.local
+
+# Tauri
+src-tauri/target
+src-tauri/Cargo.lock
+
+# Editor
+.vscode/*
+!.vscode/extensions.json
+.idea
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# OS
+.DS_Store
+Thumbs.db
+Desktop.ini
+
+# Logs
+logs
+*.log
+npm-debug.log*
+pnpm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Env
+.env
+.env.local
+.env.*.local
+
+# AzaleaOS local data (never commit)
+AzaleaOS/

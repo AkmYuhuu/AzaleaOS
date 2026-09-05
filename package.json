@@ -1,0 +1,40 @@
+{
+  "name": "azaleaos-full",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "productName": "AzaleaOS Full",
+  "description": "AzaleaOS Full - Desktop Experience Layer for Windows (Tauri 2 + React + Vite)",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc && vite build",
+    "preview": "vite preview",
+    "tauri": "tauri",
+    "tauri:dev": "tauri dev",
+    "tauri:build": "tauri build",
+    "lint": "eslint .",
+    "format": "prettier --write \"src/**/*.{ts,tsx,css,json}\"",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@tauri-apps/api": "^2.5.0",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "zustand": "^4.5.6"
+  },
+  "devDependencies": {
+    "@tauri-apps/cli": "^2.5.0",
+    "@types/node": "^22.20.1",
+    "@types/react": "^18.3.12",
+    "@types/react-dom": "^18.3.1",
+    "@typescript-eslint/eslint-plugin": "^8.18.1",
+    "@typescript-eslint/parser": "^8.18.1",
+    "@vitejs/plugin-react": "^4.3.3",
+    "eslint": "^9.18.0",
+    "eslint-plugin-react-hooks": "^5.1.0",
+    "eslint-plugin-react-refresh": "^0.4.19",
+    "prettier": "^3.4.2",
+    "typescript": "~5.7.2",
+    "vite": "^5.4.11"
+  }
+}

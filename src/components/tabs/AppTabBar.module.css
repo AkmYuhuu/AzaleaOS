@@ -1,0 +1,313 @@
+.bar {
+  display: flex;
+  align-items: stretch;
+  height: 40px;
+  min-height: 40px;
+  background: var(--color-surface);
+  border-bottom: 1px solid var(--color-border);
+  flex-shrink: 0;
+  overflow: hidden;
+}
+
+.inner {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 0 var(--space-3);
+  overflow-x: auto;
+  overflow-y: hidden;
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-border-strong) transparent;
+  flex: 1;
+  min-width: 0;
+  scroll-behavior: smooth;
+}
+
+.inner::-webkit-scrollbar {
+  height: 4px;
+}
+
+.inner::-webkit-scrollbar-thumb {
+  background: var(--color-border-strong);
+  border-radius: var(--radius-pill);
+}
+
+.tab {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 28px;
+  padding: 0 8px 0 10px;
+  border-radius: var(--radius-pill);
+  border: 1px solid transparent;
+  background: transparent;
+  color: var(--color-text-muted);
+  font-size: var(--text-sm);
+  font-weight: var(--weight-regular);
+  white-space: nowrap;
+  flex-shrink: 0;
+  max-width: 168px;
+  cursor: pointer;
+  user-select: none;
+  transition:
+    background var(--duration-fast) var(--ease-default),
+    color var(--duration-fast) var(--ease-default),
+    border-color var(--duration-fast) var(--ease-default),
+    box-shadow var(--duration-fast) var(--ease-default);
+}
+
+.tab:hover {
+  background: var(--color-bg-subtle);
+  color: var(--color-text);
+  border-color: var(--color-border);
+}
+
+.tab:focus-visible {
+  outline: 2px solid var(--color-focus-ring);
+  outline-offset: 1px;
+}
+
+.tabIcon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  color: var(--color-text-faint);
+  width: 16px;
+  height: 16px;
+}
+
+.tabActive .tabIcon {
+  color: var(--color-accent);
+}
+
+.mono {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  font-size: 10px;
+  font-weight: var(--weight-semibold);
+  letter-spacing: 0.02em;
+  background: var(--color-bg-subtle);
+  border: 1px solid var(--color-border);
+  color: var(--color-text-muted);
+  line-height: 1;
+}
+
+.tabActive .mono {
+  background: var(--color-accent-subtle);
+  border-color: color-mix(in srgb, var(--color-accent) 22%, var(--color-border));
+  color: var(--color-accent);
+}
+
+.tabLabel {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  min-width: 0;
+  max-width: 92px;
+}
+
+.tabActive {
+  background: var(--color-bg-subtle);
+  color: var(--color-text);
+  border-color: var(--color-border);
+  font-weight: var(--weight-medium);
+  box-shadow: var(--shadow-sm);
+}
+
+.tabActive:hover {
+  background: var(--color-bg-subtle);
+}
+
+.activeLine {
+  position: absolute;
+  left: 10px;
+  right: 10px;
+  bottom: -5px;
+  height: 2px;
+  border-radius: var(--radius-pill);
+  background: var(--color-accent);
+  opacity: 0.95;
+}
+
+/* state wrap */
+.stateWrap {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  margin-left: 1px;
+  flex-shrink: 0;
+}
+
+.stateIcon {
+  color: var(--color-text-faint);
+  opacity: 0.95;
+}
+
+.dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  display: inline-block;
+  border: 1px solid transparent;
+}
+
+.dotActive {
+  background: var(--color-accent);
+  border-color: color-mix(in srgb, var(--color-accent) 30%, transparent);
+}
+
+.dotBackground {
+  background: var(--color-text-faint);
+  opacity: 0.9;
+}
+
+.dotOptimizing {
+  background: var(--color-warning);
+  border-color: color-mix(in srgb, var(--color-warning) 30%, transparent);
+  animation: pulseDot 1.2s ease-in-out infinite;
+}
+
+.dotProtected {
+  background: #7c5cf5;
+  border-color: color-mix(in srgb, #7c5cf5 30%, transparent);
+}
+
+.dotError {
+  background: var(--color-danger);
+  border-color: color-mix(in srgb, var(--color-danger) 30%, transparent);
+}
+
+.dotGame {
+  background: var(--color-warning);
+  border-color: var(--color-warning);
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--color-warning) 18%, transparent);
+}
+
+.dotUnavailable {
+  background: var(--color-border-strong);
+  border-color: color-mix(in srgb, var(--color-border-strong) 40%, transparent);
+}
+
+.tabState_game {
+  border-color: color-mix(in srgb, var(--color-warning) 14%, transparent);
+}
+.tabState_unavailable {
+  opacity: 0.86;
+}
+.tabState_game .tabLabel {
+  color: var(--color-text-muted);
+}
+.tabState_error .tabLabel {
+  color: var(--color-danger);
+}
+
+@keyframes pulseDot {
+  0%,
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.72;
+    transform: scale(0.92);
+  }
+}
+
+.closeBtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  margin-left: 1px;
+  border-radius: var(--radius-pill);
+  color: var(--color-text-faint);
+  flex-shrink: 0;
+  transition:
+    background var(--duration-fast) var(--ease-default),
+    color var(--duration-fast) var(--ease-default);
+}
+
+.closeBtn:hover {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  color: var(--color-text-muted);
+}
+
+.closeBtn:focus-visible {
+  outline: 2px solid var(--color-focus-ring);
+  outline-offset: 1px;
+}
+
+.tab:not(:hover):not(:focus-within) .closeBtn {
+  opacity: 0.0;
+  pointer-events: none;
+}
+
+.tab:hover .closeBtn,
+.tab:focus-within .closeBtn,
+.tabActive .closeBtn {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.newTab {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  flex-shrink: 0;
+  border-radius: var(--radius-pill);
+  border: 1px dashed var(--color-border-strong);
+  background: transparent;
+  color: var(--color-text-faint);
+  transition:
+    border-color var(--duration-fast) var(--ease-default),
+    color var(--duration-fast) var(--ease-default),
+    background var(--duration-fast) var(--ease-default);
+}
+
+.newTab:disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
+}
+
+.newTab:not(:disabled):hover {
+  border-color: var(--color-text-faint);
+  color: var(--color-text-muted);
+  background: var(--color-bg-subtle);
+}
+
+.newTab:focus-visible {
+  outline: 2px solid var(--color-focus-ring);
+  outline-offset: 1px;
+}
+
+.limitInline {
+  margin-left: 8px;
+  font-size: var(--text-xs);
+  font-family: var(--font-mono);
+  color: var(--color-text-faint);
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tab,
+  .newTab,
+  .inner,
+  .closeBtn,
+  .dotOptimizing {
+    transition: none !important;
+    scroll-behavior: auto !important;
+    animation: none !important;
+  }
+}

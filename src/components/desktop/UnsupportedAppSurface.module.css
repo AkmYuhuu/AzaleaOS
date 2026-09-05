@@ -1,0 +1,111 @@
+.shell {
+  flex: 1;
+  min-height: 0;
+  display: grid;
+  place-items: center;
+  padding: clamp(16px, 4vw, 32px);
+  position: relative;
+  z-index: 1;
+  animation: surfaceIn 140ms var(--ease-default);
+}
+
+@keyframes surfaceIn {
+  from { opacity: 0; transform: translateY(4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.panel {
+  width: min(560px, 100%);
+  background: var(--color-surface);
+  border: 1px solid color-mix(in srgb, var(--color-warning) 22%, var(--color-border));
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-sm);
+  padding: 28px 24px;
+  display: grid;
+  justify-items: center;
+  gap: 10px;
+  text-align: center;
+}
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 22px;
+  padding: 0 8px;
+  border-radius: var(--radius-pill);
+  background: color-mix(in srgb, var(--color-warning) 10%, var(--color-bg-subtle));
+  border: 1px solid color-mix(in srgb, var(--color-warning) 18%, var(--color-border));
+  color: var(--color-warning);
+  font-size: 10px;
+  font-weight: var(--weight-medium);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.badgeDot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--color-warning);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-warning) 16%, transparent);
+}
+
+.title {
+  font-size: var(--text-base);
+  font-weight: var(--weight-semibold);
+  color: var(--color-text);
+  margin: 0;
+}
+
+.body {
+  font-size: var(--text-sm);
+  color: var(--color-text-muted);
+  line-height: var(--leading-relaxed);
+  margin: 0;
+  max-width: 440px;
+}
+
+.reason {
+  font-size: var(--text-xs);
+  color: var(--color-text-faint);
+  font-family: var(--font-mono);
+  margin: 0;
+}
+
+.mono {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  background: var(--color-bg-subtle);
+  border: 1px solid var(--color-border);
+  padding: 1px 4px;
+  border-radius: 4px;
+  color: var(--color-text-muted);
+}
+
+.launchBtn {
+  margin-top: 6px;
+  height: 32px;
+  padding: 0 16px;
+  border-radius: var(--radius-pill);
+  border: 1px solid var(--color-border-strong);
+  background: var(--color-surface);
+  color: var(--color-text);
+  font-size: var(--text-sm);
+  font-weight: var(--weight-medium);
+  box-shadow: var(--shadow-sm);
+}
+
+.launchBtn:hover { background: var(--color-surface-raised); }
+
+.toast {
+  margin-top: 4px;
+  font-size: 11px;
+  color: var(--color-text-faint);
+  font-family: var(--font-mono);
+  min-height: 16px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .shell { animation: none; }
+}

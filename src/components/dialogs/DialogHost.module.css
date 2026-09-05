@@ -1,0 +1,99 @@
+.overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  display: grid;
+  place-items: center;
+  padding: 20px;
+  background: color-mix(in srgb, #0f0f10 42%, transparent);
+  backdrop-filter: blur(2px);
+  animation: overlayIn 180ms var(--ease-out);
+}
+
+@keyframes overlayIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.dialog {
+  width: min(440px, 100%);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-lg);
+  padding: 20px;
+  display: grid;
+  gap: 14px;
+  animation: dialogIn 180ms var(--ease-out);
+}
+
+@keyframes dialogIn {
+  from { opacity: 0; transform: translateY(6px) scale(0.99); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+.title {
+  font-size: var(--text-base);
+  font-weight: var(--weight-semibold);
+  letter-spacing: var(--tracking-tight);
+  color: var(--color-text);
+  margin: 0;
+}
+
+.body {
+  font-size: var(--text-sm);
+  line-height: var(--leading-relaxed);
+  color: var(--color-text-muted);
+  margin: 0;
+}
+
+.actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-top: 4px;
+}
+
+.btn {
+  height: 34px;
+  padding: 0 14px;
+  border-radius: var(--radius-pill);
+  border: 1px solid var(--color-border);
+  background: var(--color-surface);
+  color: var(--color-text);
+  font-size: var(--text-sm);
+  font-weight: var(--weight-medium);
+  cursor: pointer;
+  transition:
+    background var(--duration-fast) var(--ease-default),
+    border-color var(--duration-fast) var(--ease-default),
+    color var(--duration-fast) var(--ease-default);
+}
+
+.btn:hover {
+  background: var(--color-bg-subtle);
+  border-color: var(--color-border-strong);
+}
+
+.btn:focus-visible {
+  outline: 2px solid var(--color-focus-ring);
+  outline-offset: 2px;
+}
+
+.btnPrimary {
+  background: var(--color-text);
+  color: var(--color-surface);
+  border-color: var(--color-text);
+}
+
+.btnPrimary:hover {
+  background: color-mix(in srgb, var(--color-text) 88%, transparent);
+  color: var(--color-surface);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .overlay,
+  .dialog {
+    animation: none !important;
+  }
+}

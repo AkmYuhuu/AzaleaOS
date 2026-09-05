@@ -1,0 +1,48 @@
+{
+  "$schema": "../node_modules/@tauri-apps/cli/config.schema.json",
+  "productName": "AzaleaOS Full",
+  "version": "0.1.0",
+  "identifier": "com.azalea.azaleaos.full",
+  "build": {
+    "beforeDevCommand": "npm run dev",
+    "devUrl": "http://localhost:1420",
+    "beforeBuildCommand": "npm run build",
+    "frontendDist": "../dist"
+  },
+  "app": {
+    "withGlobalTauri": true,
+    "windows": [
+      {
+        "title": "AzaleaOS Full",
+        "width": 1280,
+        "height": 800,
+        "minWidth": 960,
+        "minHeight": 600,
+        "resizable": true,
+        "center": true
+      }
+    ],
+    "security": {
+      "csp": null
+    }
+  },
+  "bundle": {
+    "active": true,
+    "targets": "all",
+    "icon": ["icons/icon.png", "icons/icon.ico"],
+    "resources": [],
+    "windows": {
+      "wix": {
+        "language": "en-US",
+        "upgradeCode": "B2E8F9A1-3C4D-4E5F-8A6B-7C8D9E0F1A2B"
+      },
+      "nsis": {
+        "installMode": "currentUser",
+        "languages": ["English"]
+      }
+    }
+  },
+  "plugins": {
+    "packagingNotes": "Preservation policy (§48 STEP 25, §29): uninstall keeps %LOCALAPPDATA%\\AzaleaOS\\Full (config.json, workspaces.json, Cache/, Logs/AzaleaOS-Full.log, diagnostics/) - Tauri/WiX/NSIS default preserves appLocalData; user must manually remove if desired. Upgrade uses stable WIX upgradeCode B2E8F9A1-3C4D-4E5F-8A6B-7C8D9E0F1A2B to retain data. Signing placeholder: ready for tauri signer (no cert bundled, no updater backdoor per §47, no --lite flag, no cloud)."
+  }
+}

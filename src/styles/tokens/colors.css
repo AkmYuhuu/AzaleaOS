@@ -1,0 +1,77 @@
+:root {
+  /* Base surfaces - calm minimal professional */
+  --color-bg: #f8f7f5;
+  --color-bg-subtle: #f1efeB;
+  --color-surface: #ffffff;
+  --color-surface-raised: #ffffff;
+  --color-surface-overlay: #ffffff;
+  --color-border: #e8e5e0;
+  --color-border-strong: #d9d4ce;
+  --color-text: #1a1a1e;
+  --color-text-muted: #6b6a69;
+  --color-text-faint: #9a9998;
+  --color-accent: #5b6ae8;
+  --color-accent-hover: #4a59d6;
+  --color-accent-subtle: #eef0ff;
+  --color-success: #2e7d5b;
+  --color-warning: #b7791f;
+  --color-danger: #b42318;
+  --color-focus-ring: #5b6ae8;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --color-bg: #0f0f10;
+    --color-bg-subtle: #171719;
+    --color-surface: #1c1c1f;
+    --color-surface-raised: #232326;
+    --color-surface-overlay: #2a2a2e;
+    --color-border: #2a2a2e;
+    --color-border-strong: #35353a;
+    --color-text: #f1f0ee;
+    --color-text-muted: #9a9998;
+    --color-text-faint: #71706f;
+    --color-accent: #7b88f5;
+    --color-accent-hover: #8d9af7;
+    --color-accent-subtle: #1e2030;
+    --color-success: #34d399;
+    --color-warning: #fbbf24;
+    --color-danger: #f87171;
+    --color-focus-ring: #7b88f5;
+  }
+}
+
+/* Explicit data-theme overrides for future settings - respects system by default */
+[data-theme="light"] {
+  --color-bg: #f8f7f5;
+  --color-bg-subtle: #f1efeB;
+  --color-surface: #ffffff;
+  --color-surface-raised: #ffffff;
+  --color-surface-overlay: #ffffff;
+  --color-border: #e8e5e0;
+  --color-border-strong: #d9d4ce;
+  --color-text: #1a1a1e;
+  --color-text-muted: #6b6a69;
+  --color-text-faint: #9a9998;
+  --color-accent: #5b6ae8;
+  --color-accent-hover: #4a59d6;
+  --color-accent-subtle: #eef0ff;
+  --color-focus-ring: #5b6ae8;
+}
+
+[data-theme="dark"] {
+  --color-bg: #0f0f10;
+  --color-bg-subtle: #171719;
+  --color-surface: #1c1c1f;
+  --color-surface-raised: #232326;
+  --color-surface-overlay: #2a2a2e;
+  --color-border: #2a2a2e;
+  --color-border-strong: #35353a;
+  --color-text: #f1f0ee;
+  --color-text-muted: #9a9998;
+  --color-text-faint: #71706f;
+  --color-accent: #7b88f5;
+  --color-accent-hover: #8d9af7;
+  --color-accent-subtle: #1e2030;
+  --color-focus-ring: #7b88f5;
+}
