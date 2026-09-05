@@ -1,7 +1,18 @@
-.shell {
+.shellOuter {
   display: flex;
+  flex-direction: column;
   height: 100vh;
   height: 100dvh;
+  width: 100%;
+  overflow: hidden;
+  background: var(--color-bg);
+  color: var(--color-text);
+}
+
+.shell {
+  display: flex;
+  flex: 1;
+  min-height: 0;
   width: 100%;
   overflow: hidden;
   background: var(--color-bg);
