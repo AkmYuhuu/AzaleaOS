@@ -16,11 +16,43 @@ import SettingsPanel from "../components/settings/SettingsPanel";
 import FilesView from "../components/files/FilesView";
 import SkipLink from "../components/a11y/SkipLink";
 import ErrorBoundary from "../components/a11y/ErrorBoundary";
+import azaleaIcon from "../../asset/icon-azaleaos.png";
 import "../components/a11y/SkipLink.css";
+import "./AppShell.css";
+
+function playStartupChime() {
+  try {
+    const AudioCtx = window.AudioContext || (window as unknown as { webkitAudioContext?: typeof AudioContext }).webkitAudioContext;
+    if (!AudioCtx) return;
+    const ctx = new AudioCtx();
+    const master = ctx.createGain();
+    master.gain.setValueAtTime(0.0001, ctx.currentTime);
+    master.gain.exponentialRampToValueAtTime(0.13, ctx.currentTime + 0.05);
+    master.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + 1.25);
+    master.connect(ctx.destination);
+    [523.25, 659.25, 783.99].forEach((frequency, index) => {
+      const oscillator = ctx.createOscillator();
+      const gain = ctx.createGain();
+      oscillator.type = "sine";
+      oscillator.frequency.value = frequency;
+      gain.gain.value = 0.42 - index * 0.08;
+      oscillator.connect(gain);
+      gain.connect(master);
+      oscillator.start(ctx.currentTime + index * 0.11);
+      oscillator.stop(ctx.currentTime + 1.35);
+    });
+    window.setTimeout(() => void ctx.close(), 1600);
+  } catch {
+    // Audio is enhancement-only. Startup must never fail because audio is unavailable.
+  }
+}
 
 export default function AppShell(): JSX.Element {
   const [sidebarMode, setSidebarMode] = useState<SidebarMode>("expanded");
+  const [booting, setBooting] = useState(true);
   const prevModeRef = useRef<SidebarMode>("expanded");
+  const theme = useSettingsStore((s) => s.settings.appearance.theme);
+  const animationLevel = useSettingsStore((s) => s.settings.appearance.animationLevel);
 
   const hideSidebar = useCallback(() => {
     setSidebarMode((curr) => {
@@ -30,10 +62,7 @@ export default function AppShell(): JSX.Element {
     });
   }, []);
 
-  const restoreSidebar = useCallback(() => {
-    setSidebarMode(prevModeRef.current);
-  }, []);
-
+  const restoreSidebar = useCallback(() => setSidebarMode(prevModeRef.current), []);
   const toggleExpandCompact = useCallback(() => {
     setSidebarMode((curr) => {
       if (curr === "hidden") return prevModeRef.current;
@@ -45,225 +74,112 @@ export default function AppShell(): JSX.Element {
 
   const handleHotkeyToggle = useCallback(() => {
     setSidebarMode((curr) => {
-      if (curr === "hidden") {
-        return prevModeRef.current;
-      }
+      if (curr === "hidden") return prevModeRef.current;
       prevModeRef.current = curr;
       return "hidden";
     });
   }, []);
 
-  // §18 lifecycle - single subscription backend-driven, not per tab
   useLifecycleSubscription(true);
 
   useEffect(() => { initFilesystemStore(); }, []);
+  useEffect(() => { useUpdateStore.getState().init(); }, []);
 
-  // §F lightweight update init - once on mount, cached, no polling (§B/E authority)
   useEffect(() => {
-    useUpdateStore.getState().init();
+    const root = document.documentElement;
+    const apply = () => {
+      const resolved = theme === "system" ? (matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light") : theme;
+      root.dataset.theme = resolved;
+      root.dataset.motion = animationLevel;
+      root.style.colorScheme = resolved;
+    };
+    apply();
+    if (theme !== "system") return;
+    const mq = matchMedia("(prefers-color-scheme: dark)");
+    mq.addEventListener("change", apply);
+    return () => mq.removeEventListener("change", apply);
+  }, [theme, animationLevel]);
+
+  useEffect(() => {
+    playStartupChime();
+    const timer = window.setTimeout(() => setBooting(false), 2100);
+    return () => window.clearTimeout(timer);
   }, []);
 
-  // Listen for Tauri hotkey events from backend global shortcut registration
-  useEffect(() => {
-    let unlisten: (() => void) | null = null;
+  const dispatchHotkey = useCallback((keyId: string) => {
+    const launcher = useLauncherStore.getState();
+    const ws = useWorkspaceStore.getState();
+    switch (keyId) {
+      case "shiftEsc": case "ShiftEsc": case "Shift+Esc": useResourceStore.getState().toggleBar(); break;
+      case "ctrlSpace": case "CtrlSpace": case "Ctrl+Space": launcher.open ? launcher.closeLauncher() : launcher.openLauncher(); break;
+      case "ctrlAltA": case "CtrlAltA": case "Ctrl+Alt+A": handleHotkeyToggle(); break;
+      case "ctrlAltN": case "CtrlAltN": case "Ctrl+Alt+N": if (!launcher.open) ws.createOsTab(); break;
+      case "ctrlAltW": case "CtrlAltW": case "Ctrl+Alt+W": if (!launcher.open && ws.activeOsTabId) ws.closeOsTab(ws.activeOsTabId); break;
+      case "ctrlAltLeft": case "CtrlAltLeft": case "Ctrl+Alt+Left": if (!launcher.open) ws.prevTab(); break;
+      case "ctrlAltRight": case "CtrlAltRight": case "Ctrl+Alt+Right": if (!launcher.open) ws.nextTab(); break;
+      case "ctrlTab": case "CtrlTab": case "Ctrl+Tab": if (!launcher.open && ws.activeOsTabId) useAppTabStore.getState().nextAppTab(ws.activeOsTabId); break;
+      case "ctrlShiftTab": case "CtrlShiftTab": case "Ctrl+Shift+Tab": if (!launcher.open && ws.activeOsTabId) useAppTabStore.getState().prevAppTab(ws.activeOsTabId); break;
+    }
+  }, [handleHotkeyToggle]);
 
+  useEffect(() => {
+    let unlistenGlobal: (() => void) | undefined;
+    let unlistenWindow: (() => void) | undefined;
     (async () => {
       try {
         const { listen } = await import("@tauri-apps/api/event");
-        unlisten = await listen<{ id: string; idStr: string; accelerator: string }>("azalea:hotkey", (event) => {
-          const { id, idStr } = event.payload;
-          const launcher = useLauncherStore.getState();
-          const ws = useWorkspaceStore.getState();
-          const keyId = idStr || id;
-
-          switch (keyId) {
-            case "shiftEsc":
-            case "ShiftEsc":
-              useResourceStore.getState().toggleBar();
-              break;
-            case "ctrlSpace":
-            case "CtrlSpace":
-              if (launcher.open) launcher.closeLauncher();
-              else launcher.openLauncher();
-              break;
-            case "ctrlAltA":
-            case "CtrlAltA":
-              handleHotkeyToggle();
-              break;
-            case "ctrlAltN":
-            case "CtrlAltN":
-              if (!launcher.open) ws.createOsTab();
-              break;
-            case "ctrlAltW":
-            case "CtrlAltW":
-              if (!launcher.open) {
-                const active = ws.activeOsTabId;
-                if (active) ws.closeOsTab(active);
-              }
-              break;
-            case "ctrlAltLeft":
-            case "CtrlAltLeft":
-              if (!launcher.open) ws.prevTab();
-              break;
-            case "ctrlAltRight":
-            case "CtrlAltRight":
-              if (!launcher.open) ws.nextTab();
-              break;
-            case "ctrlTab":
-            case "CtrlTab":
-              if (!launcher.open) {
-                const activeOsTabId = ws.activeOsTabId;
-                if (activeOsTabId) useAppTabStore.getState().nextAppTab(activeOsTabId);
-              }
-              break;
-            case "ctrlShiftTab":
-            case "CtrlShiftTab":
-              if (!launcher.open) {
-                const activeOsTabId = ws.activeOsTabId;
-                if (activeOsTabId) useAppTabStore.getState().prevAppTab(activeOsTabId);
-              }
-              break;
-          }
+        unlistenGlobal = await listen<{ id?: string; idStr?: string; accelerator?: string }>("azalea:hotkey", ({ payload }) => {
+          dispatchHotkey(payload.idStr || payload.id || payload.accelerator || "");
         });
+        try {
+          const { getCurrentWebviewWindow } = await import("@tauri-apps/api/webviewWindow");
+          unlistenWindow = await getCurrentWebviewWindow().listen<{ id?: string; idStr?: string; accelerator?: string }>("azalea:hotkey-window", ({ payload }) => {
+            dispatchHotkey(payload.idStr || payload.id || payload.accelerator || "");
+          });
+        } catch {
+          // Global event listener remains the compatibility path.
+        }
       } catch (e) {
         console.warn("Tauri hotkey listener failed:", e);
       }
     })();
-
-    return () => {
-      if (unlisten) unlisten();
-    };
-  }, [handleHotkeyToggle]);
+    return () => { unlistenGlobal?.(); unlistenWindow?.(); };
+  }, [dispatchHotkey]);
 
   useEffect(() => {
-    const isTypingTarget = (el: EventTarget | null) => {
-      if (!(el instanceof HTMLElement)) return false;
-      const tag = el.tagName.toLowerCase();
-      if (tag === "input" || tag === "textarea" || tag === "select") return true;
-      if (el.isContentEditable) return true;
-      return false;
-    };
-
+    const isTypingTarget = (el: EventTarget | null) => el instanceof HTMLElement && (["input", "textarea", "select"].includes(el.tagName.toLowerCase()) || el.isContentEditable);
     const onKeyDown = (e: KeyboardEvent) => {
-      // Shift+Esc toggles Resource Bar - independent, always (spec §10)
-      if (e.shiftKey && e.key === "Escape") {
-        e.preventDefault();
-        useResourceStore.getState().toggleBar();
-        return;
-      }
-
-      // Esc priority: Launcher(100) > Settings(95) > Files(94) > Center(90) > Bar(40)
+      if (e.shiftKey && e.key === "Escape") { e.preventDefault(); dispatchHotkey("shiftEsc"); return; }
       if (e.key === "Escape") {
         const launcher = useLauncherStore.getState();
-        if (launcher.open) {
-          e.preventDefault();
-          launcher.closeLauncher();
-          return;
-        }
+        if (launcher.open) { e.preventDefault(); launcher.closeLauncher(); return; }
         const settings = useSettingsStore.getState();
-        if (settings.isOpen) {
-          e.preventDefault();
-          settings.closeSettings();
-          return;
-        }
+        if (settings.isOpen) { e.preventDefault(); settings.closeSettings(); return; }
         const fs = useFilesystemStore.getState();
-        if (fs.isOpen) {
-          e.preventDefault();
-          fs.close();
-          return;
-        }
+        if (fs.isOpen) { e.preventDefault(); fs.close(); return; }
         const rs = useResourceStore.getState();
-        if (rs.isCenterOpen) {
-          e.preventDefault();
-          rs.closeCenter();
-          return;
-        }
-        if (rs.isBarOpen) {
-          e.preventDefault();
-          rs.setBarOpen(false);
-          return;
-        }
+        if (rs.isCenterOpen) { e.preventDefault(); rs.closeCenter(); return; }
+        if (rs.isBarOpen) { e.preventDefault(); rs.setBarOpen(false); return; }
       }
-
-      const launcher = useLauncherStore.getState();
-      // Ctrl+Space - launcher toggle (global, §9/§15.7)
-      if (e.ctrlKey && !e.altKey && !e.metaKey && e.code === "Space") {
-        e.preventDefault();
-        if (launcher.open) launcher.closeLauncher();
-        else launcher.openLauncher();
-        return;
-      }
-
-      // skip workspace hotkeys while launcher open
-      if (launcher.open) return;
-
-      const typing = isTypingTarget(e.target);
-      const ws = useWorkspaceStore.getState();
-
-      // Ctrl+Alt+A - sidebar toggle (always)
-      if (e.ctrlKey && e.altKey && (e.key.toLowerCase() === "a" || e.code === "KeyA")) {
-        e.preventDefault();
-        handleHotkeyToggle();
-        return;
-      }
-
-      // When typing in rename input, skip workspace hotkeys except Esc handling elsewhere
-      if (typing) return;
-
-      // Ctrl+Alt+N - New OS Tab
-      if (e.ctrlKey && e.altKey && (e.key.toLowerCase() === "n" || e.code === "KeyN")) {
-        e.preventDefault();
-        ws.createOsTab();
-        return;
-      }
-
-      // Ctrl+Alt+W - Close active OS Tab
-      if (e.ctrlKey && e.altKey && (e.key.toLowerCase() === "w" || e.code === "KeyW")) {
-        e.preventDefault();
-        const active = ws.activeOsTabId;
-        if (active) {
-          ws.closeOsTab(active);
-        }
-        return;
-      }
-
-      // Ctrl+Alt+ArrowLeft / Right - prev/next OS tab
-      if (e.ctrlKey && e.altKey && (e.key === "ArrowLeft" || e.code === "ArrowLeft")) {
-        e.preventDefault();
-        ws.prevTab();
-        return;
-      }
-      if (e.ctrlKey && e.altKey && (e.key === "ArrowRight" || e.code === "ArrowRight")) {
-        e.preventDefault();
-        ws.nextTab();
-        return;
-      }
-
-      // Ctrl+Tab / Ctrl+Shift+Tab - next/prev App Tab within active OS (skip when typing)
-      if (e.ctrlKey && !e.altKey && !e.metaKey && e.key === "Tab") {
-        const activeOsTabId = ws.activeOsTabId;
-        if (!activeOsTabId) return;
-        e.preventDefault();
-        const appStore = useAppTabStore.getState();
-        if (e.shiftKey) appStore.prevAppTab(activeOsTabId);
-        else appStore.nextAppTab(activeOsTabId);
-        return;
-      }
+      if (e.ctrlKey && !e.altKey && !e.metaKey && e.code === "Space") { e.preventDefault(); dispatchHotkey("ctrlSpace"); return; }
+      if (useLauncherStore.getState().open) return;
+      if (e.ctrlKey && e.altKey && e.code === "KeyA") { e.preventDefault(); dispatchHotkey("ctrlAltA"); return; }
+      if (isTypingTarget(e.target)) return;
+      if (e.ctrlKey && e.altKey && e.code === "KeyN") { e.preventDefault(); dispatchHotkey("ctrlAltN"); return; }
+      if (e.ctrlKey && e.altKey && e.code === "KeyW") { e.preventDefault(); dispatchHotkey("ctrlAltW"); return; }
+      if (e.ctrlKey && e.altKey && e.code === "ArrowLeft") { e.preventDefault(); dispatchHotkey("ctrlAltLeft"); return; }
+      if (e.ctrlKey && e.altKey && e.code === "ArrowRight") { e.preventDefault(); dispatchHotkey("ctrlAltRight"); return; }
+      if (e.ctrlKey && !e.altKey && e.code === "Tab") { e.preventDefault(); dispatchHotkey(e.shiftKey ? "ctrlShiftTab" : "ctrlTab"); }
     };
-    window.addEventListener("keydown", onKeyDown);
-    return () => window.removeEventListener("keydown", onKeyDown);
-  }, [handleHotkeyToggle]);
+    window.addEventListener("keydown", onKeyDown, true);
+    return () => window.removeEventListener("keydown", onKeyDown, true);
+  }, [dispatchHotkey]);
 
   return (
     <>
       <SkipLink />
       <ErrorBoundary>
-        <DesktopShell
-          sidebarMode={sidebarMode}
-          onToggleExpandCompact={toggleExpandCompact}
-          onHideSidebar={hideSidebar}
-          onRestoreSidebar={restoreSidebar}
-        />
+        <DesktopShell sidebarMode={sidebarMode} onToggleExpandCompact={toggleExpandCompact} onHideSidebar={hideSidebar} onRestoreSidebar={restoreSidebar} />
       </ErrorBoundary>
       <ResourceBar />
       <ResourceCenter />
@@ -271,37 +187,26 @@ export default function AppShell(): JSX.Element {
       <SettingsPanel />
       <AppLauncher />
       <GlobalToast />
+      {booting && <SplashScreen />}
     </>
+  );
+}
+
+function SplashScreen(): JSX.Element {
+  return (
+    <div className="az-splash" role="status" aria-label="Starting AzaleaOS">
+      <div className="az-splash__aurora" />
+      <img className="az-splash__logo" src={azaleaIcon} alt="" />
+      <div className="az-splash__name">Azalea<span>OS</span></div>
+      <div className="az-splash__loader"><i /></div>
+      <div className="az-splash__text">Preparing your workspace</div>
+    </div>
   );
 }
 
 function GlobalToast(): JSX.Element | null {
   const toast = useSettingsStore((s) => s.toast);
   const isOpen = useSettingsStore((s) => s.isOpen);
-  // Only show global when Settings panel is closed, to surface Files placeholder toast
   if (!toast || isOpen) return null;
-  return (
-    <div
-      role="status"
-      aria-live="polite"
-      style={{
-        position: "fixed",
-        bottom: 20,
-        left: "50%",
-        transform: "translateX(-50%)",
-        zIndex: 110,
-        padding: "10px 14px",
-        borderRadius: "12px",
-        border: "1px solid var(--color-border)",
-        background: "var(--color-surface-overlay)",
-        boxShadow: "var(--shadow-lg)",
-        fontSize: 12,
-        color: "var(--color-text)",
-        maxWidth: "min(420px, 90vw)",
-        textAlign: "center",
-      }}
-    >
-      {toast}
-    </div>
-  );
+  return <div role="status" aria-live="polite" className="az-global-toast">{toast}</div>;
 }
