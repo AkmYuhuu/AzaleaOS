@@ -60,6 +60,12 @@
   flex-shrink: 0;
 }
 
+.brandMarkImg {
+  display: block;
+  object-fit: contain;
+  border-radius: 3px;
+}
+
 .compact .brandMark {
   width: 32px;
   height: 32px;

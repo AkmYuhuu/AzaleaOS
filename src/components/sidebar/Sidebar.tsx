@@ -92,7 +92,9 @@ export default function Sidebar({
         {/* Brand */}
         <div className={styles.brandRow}>
           <div className={styles.brand} aria-label="AzaleaOS">
-            <span className={styles.brandMark} aria-hidden>🌸</span>
+            <span className={styles.brandMark} aria-hidden>
+              <img src="/icon-azaleaos.png" alt="" width={18} height={18} className={styles.brandMarkImg} />
+            </span>
             {!isCompact && <span className={styles.brandWord}>AzaleaOS</span>}
           </div>
           {!isCompact && <span className={styles.brandEdition}>Full</span>}

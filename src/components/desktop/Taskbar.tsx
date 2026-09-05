@@ -76,7 +76,9 @@ export default function Taskbar() {
         aria-label="Open App Launcher (Ctrl+Space)"
         title="AzaleaOS - Open App Launcher (Ctrl+Space)"
       >
-        <span className={styles.startMark} aria-hidden>🌸</span>
+        <span className={styles.startMark} aria-hidden>
+          <img src="/icon-azaleaos.png" alt="" width={20} height={20} />
+        </span>
       </button>
 
       <div className={styles.dock} role="group" aria-label="Pinned and running apps">

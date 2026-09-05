@@ -17,6 +17,7 @@
   --color-warning: #b7791f;
   --color-danger: #b42318;
   --color-focus-ring: #5b6ae8;
+  --color-wallpaper: url("/wallpapers/light.jpg");
 }
 
 @media (prefers-color-scheme: dark) {
@@ -38,6 +39,7 @@
     --color-warning: #fbbf24;
     --color-danger: #f87171;
     --color-focus-ring: #7b88f5;
+    --color-wallpaper: url("/wallpapers/dark.jpg");
   }
 }
 
@@ -57,6 +59,7 @@
   --color-accent-hover: #4a59d6;
   --color-accent-subtle: #eef0ff;
   --color-focus-ring: #5b6ae8;
+  --color-wallpaper: url("/wallpapers/light.jpg");
 }
 
 [data-theme="dark"] {
@@ -74,4 +77,5 @@
   --color-accent-hover: #8d9af7;
   --color-accent-subtle: #1e2030;
   --color-focus-ring: #7b88f5;
+  --color-wallpaper: url("/wallpapers/dark.jpg");
 }

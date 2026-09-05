@@ -8,6 +8,7 @@ import { useResourceStore } from "../stores/resourceStore";
 import { useSettingsStore } from "../stores/settingsStore";
 import { useFilesystemStore, initFilesystemStore } from "../stores/filesystemStore";
 import { useLifecycleSubscription } from "../hooks/useLifecycleSubscription";
+import { useAppliedTheme } from "../hooks/useAppliedTheme";
 import { useUpdateStore } from "../stores/updateStore";
 import AppLauncher from "../components/launcher/AppLauncher";
 import ResourceBar from "../components/resources/ResourceBar";
@@ -52,6 +53,9 @@ export default function AppShell(): JSX.Element {
       return "hidden";
     });
   }, []);
+
+  // §Appearance - actually apply theme setting to <html data-theme>
+  useAppliedTheme();
 
   // §18 lifecycle - single subscription backend-driven, not per tab
   useLifecycleSubscription(true);

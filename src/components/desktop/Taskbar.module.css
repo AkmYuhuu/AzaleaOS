@@ -41,8 +41,14 @@
 }
 
 .startMark {
-  font-size: 18px;
+  display: grid;
+  place-items: center;
   line-height: 1;
+}
+
+.startMark img {
+  display: block;
+  border-radius: 4px;
 }
 
 .dock {

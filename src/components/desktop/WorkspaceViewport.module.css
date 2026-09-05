@@ -4,8 +4,23 @@
   overflow: auto;
   display: flex;
   flex-direction: column;
-  background: var(--color-bg);
+  background-color: var(--color-bg);
+  background-image: var(--color-wallpaper);
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-attachment: fixed;
   position: relative;
+}
+
+/* Dim/tint wallpaper toward the surface color so cards and text on top stay
+   readable in both themes, instead of relying on a hardcoded overlay color. */
+.viewport::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: color-mix(in srgb, var(--color-bg) 42%, transparent);
 }
 
 /* Subtle spatial depth - not gradient-everywhere, just gentle vignette */
@@ -18,6 +33,7 @@
     radial-gradient(800px 500px at 22% 18%, color-mix(in srgb, var(--color-accent) 4.5%, transparent), transparent 62%),
     radial-gradient(700px 460px at 92% 88%, color-mix(in srgb, var(--color-accent) 3%, transparent), transparent 64%);
   opacity: 1;
+  z-index: 1;
 }
 
 .emptyWrap {
