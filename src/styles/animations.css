@@ -1,0 +1,73 @@
+/* Shared keyframes + utility animation classes used across the app.
+   Durations/easing reuse the existing motion tokens so everything feels
+   consistent with the micro-interactions already in place. */
+
+@keyframes azFadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes azFadeOut {
+  from { opacity: 1; }
+  to { opacity: 0; }
+}
+
+@keyframes azScaleFadeIn {
+  from { opacity: 0; transform: scale(0.96) translateY(4px); }
+  to { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+@keyframes azScaleFadeOut {
+  from { opacity: 1; transform: scale(1) translateY(0); }
+  to { opacity: 0; transform: scale(0.97) translateY(4px); }
+}
+
+@keyframes azSlideUpIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes azSlideDownOut {
+  from { opacity: 1; transform: translateY(0); }
+  to { opacity: 0; transform: translateY(10px); }
+}
+
+@keyframes azSlideRightIn {
+  from { opacity: 0; transform: translateX(-10px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes azSlideLeftOut {
+  from { opacity: 1; transform: translateX(0); }
+  to { opacity: 0; transform: translateX(-10px); }
+}
+
+@keyframes azPanelInRight {
+  from { opacity: 0; transform: translateX(16px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes azPanelOutRight {
+  from { opacity: 1; transform: translateX(0); }
+  to { opacity: 0; transform: translateX(16px); }
+}
+
+@keyframes azDockBounce {
+  0% { transform: translateY(0) scale(1); }
+  35% { transform: translateY(-6px) scale(1.05); }
+  60% { transform: translateY(0) scale(0.98); }
+  100% { transform: translateY(0) scale(1); }
+}
+
+@keyframes azSpinSlow {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .az-anim,
+  .az-anim * {
+    animation: none !important;
+    transition: none !important;
+  }
+}

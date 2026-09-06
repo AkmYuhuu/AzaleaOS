@@ -50,11 +50,17 @@
   max-width: 168px;
   cursor: pointer;
   user-select: none;
+  animation: azScaleFadeIn var(--duration-slow) var(--ease-out);
   transition:
     background var(--duration-fast) var(--ease-default),
     color var(--duration-fast) var(--ease-default),
     border-color var(--duration-fast) var(--ease-default),
-    box-shadow var(--duration-fast) var(--ease-default);
+    box-shadow var(--duration-fast) var(--ease-default),
+    transform var(--duration-fast) var(--ease-default);
+}
+
+.tab:active {
+  transform: scale(0.97);
 }
 
 .tab:hover {
@@ -272,7 +278,12 @@
   transition:
     border-color var(--duration-fast) var(--ease-default),
     color var(--duration-fast) var(--ease-default),
-    background var(--duration-fast) var(--ease-default);
+    background var(--duration-fast) var(--ease-default),
+    transform var(--duration-fast) var(--ease-default);
+}
+
+.newTab:not(:disabled):active {
+  transform: scale(0.88) rotate(90deg);
 }
 
 .newTab:disabled {

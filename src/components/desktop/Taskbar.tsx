@@ -37,6 +37,7 @@ export default function Taskbar() {
   const openLauncher = useLauncherStore((s) => s.openLauncher);
   const isCenterOpen = useResourceStore((s) => s.isCenterOpen);
   const clock = useClock();
+  const [bouncingId, setBouncingId] = useState<string | null>(null);
 
   const pinnedItems = useMemo(
     () => LAUNCHER_ITEMS.filter((i) => i.kind === "app" && PINNED_APP_IDS.includes(i.descriptor!.id as (typeof PINNED_APP_IDS)[number])),
@@ -64,6 +65,8 @@ export default function Taskbar() {
       return;
     }
     if (atLimit) return;
+    setBouncingId(appId);
+    window.setTimeout(() => setBouncingId((cur) => (cur === appId ? null : cur)), 420);
     addAppTab(activeOsTabId, descriptor);
   };
 
@@ -90,7 +93,7 @@ export default function Taskbar() {
             <button
               key={item.id}
               type="button"
-              className={`${styles.dockIcon} ${active ? styles.dockIconActive : ""}`}
+              className={`${styles.dockIcon} ${active ? styles.dockIconActive : ""} ${bouncingId === descriptor.id ? styles.dockIconBounce : ""}`}
               onClick={() => handleDockClick(descriptor.id, descriptor)}
               aria-label={item.label}
               title={item.label}

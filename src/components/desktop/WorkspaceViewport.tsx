@@ -27,7 +27,7 @@ export default function WorkspaceViewport() {
   if (!active) {
     return (
       <div id="workspace-main" className={styles.viewport} role="main" aria-label="Workspace viewport" tabIndex={-1}>
-        <EmptyWorkspace workspaceName="New Workspace" />
+        <EmptyWorkspace key="new-workspace" workspaceName="New Workspace" />
       </div>
     );
   }
@@ -35,7 +35,7 @@ export default function WorkspaceViewport() {
   if (tabs.length === 0) {
     return (
       <div id="workspace-main" className={styles.viewport} role="main" aria-label="Workspace viewport" tabIndex={-1}>
-        <EmptyWorkspace workspaceName={active.name} />
+        <EmptyWorkspace key={active.id} workspaceName={active.name} />
       </div>
     );
   }

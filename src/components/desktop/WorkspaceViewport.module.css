@@ -44,6 +44,7 @@
   position: relative;
   z-index: 1;
   min-height: 100%;
+  animation: azFadeIn var(--duration-normal) var(--ease-default);
 }
 
 .emptyCard {
@@ -259,6 +260,7 @@
   place-items: center;
   padding: clamp(20px, 4vw, 40px);
   min-height: 0;
+  animation: azFadeIn var(--duration-normal) var(--ease-default);
 }
 
 .surfaceCard {

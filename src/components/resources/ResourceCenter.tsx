@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef } from "react";
 import { useResourceStore } from "../../stores/resourceStore";
+import { useMountTransition } from "../../hooks/useMountTransition";
 import styles from "./ResourceCenter.module.css";
 
 function formatUptime(sec: number): string {
@@ -40,11 +41,12 @@ function statusClass(status: string): string {
 // honey: outer guards isCenterOpen only - prevents 750ms rerenders when closed (§28)
 export default function ResourceCenter(): JSX.Element | null {
   const isOpen = useResourceStore((s) => s.isCenterOpen);
-  if (!isOpen) return null;
-  return <ResourceCenterInner />;
+  const { shouldRender, phase } = useMountTransition(isOpen, 160);
+  if (!shouldRender) return null;
+  return <ResourceCenterInner phase={phase} />;
 }
 
-function ResourceCenterInner(): JSX.Element | null {
+function ResourceCenterInner({ phase }: { phase: "enter" | "exit" }): JSX.Element | null {
   const snapshot = useResourceStore((s) => s.snapshot);
   const apps = useResourceStore((s) => s.apps);
   const adaptive = useResourceStore((s) => s.adaptive);
@@ -95,14 +97,14 @@ function ResourceCenterInner(): JSX.Element | null {
 
   return (
     <div
-      className={styles.backdrop}
+      className={`${styles.backdrop} ${phase === "enter" ? styles.backdropEnter : styles.backdropExit}`}
       role="presentation"
       onMouseDown={onBackdrop}
       aria-hidden={false}
     >
       <div
         ref={panelRef}
-        className={styles.panel}
+        className={`${styles.panel} ${phase === "enter" ? styles.panelEnter : styles.panelExit}`}
         role="dialog"
         aria-modal="true"
         aria-label="Azalea Resource Center"

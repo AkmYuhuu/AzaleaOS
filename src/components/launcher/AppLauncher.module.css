@@ -6,12 +6,24 @@
   display: grid;
   place-items: start center;
   padding: clamp(56px, 14vh, 140px) var(--space-4) var(--space-4);
+}
+
+.backdropEnter {
   animation: backdropIn 150ms var(--ease-default);
+}
+
+.backdropExit {
+  animation: backdropOut 140ms var(--ease-in-out) forwards;
 }
 
 @keyframes backdropIn {
   from { opacity: 0; }
   to { opacity: 1; }
+}
+
+@keyframes backdropOut {
+  from { opacity: 1; }
+  to { opacity: 0; }
 }
 
 .panel {
@@ -24,8 +36,15 @@
   border-radius: var(--radius-xl);
   box-shadow: var(--shadow-lg);
   overflow: hidden;
-  animation: panelIn 150ms var(--ease-out);
   transform-origin: center top;
+}
+
+.panelEnter {
+  animation: panelIn 150ms var(--ease-out);
+}
+
+.panelExit {
+  animation: panelOut 140ms var(--ease-in-out) forwards;
 }
 
 @keyframes panelIn {
@@ -33,9 +52,14 @@
   to { opacity: 1; transform: scale(1) translateY(0); }
 }
 
+@keyframes panelOut {
+  from { opacity: 1; transform: scale(1) translateY(0); }
+  to { opacity: 0; transform: scale(0.97) translateY(-2px); }
+}
+
 @media (prefers-reduced-motion: reduce) {
-  .backdrop { animation: none; }
-  .panel { animation: none; }
+  .backdropEnter, .backdropExit { animation: none; }
+  .panelEnter, .panelExit { animation: none; }
 }
 
 .header {

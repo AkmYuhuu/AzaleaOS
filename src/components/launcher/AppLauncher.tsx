@@ -2,6 +2,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useLauncherStore } from "../../stores/launcherStore";
 import { useWorkspaceStore } from "../../stores/workspaceStore";
 import { useAppTabStore } from "../../stores/appTabStore";
+import { useMountTransition } from "../../hooks/useMountTransition";
 import { filterAndSort } from "../../utils/fuzzy";
 import { LAUNCHER_ITEMS, type LauncherItem } from "../../features/applications/launcherData";
 import { MAX_APPS_PER_OS_TAB } from "../../types/workspace";
@@ -124,18 +125,19 @@ export default function AppLauncher() {
     [filtered, selectedIndex, handleSelect, closeLauncher, moveSelection, setSelectedIndex],
   );
 
-  if (!open) return null;
+  const { shouldRender, phase } = useMountTransition(open, 160);
+  if (!shouldRender) return null;
 
   return (
     <div
-      className={styles.backdrop}
+      className={`${styles.backdrop} ${phase === "enter" ? styles.backdropEnter : styles.backdropExit}`}
       onMouseDown={(e) => {
         if (e.target === e.currentTarget) closeLauncher();
       }}
       aria-hidden={false}
     >
       <div
-        className={styles.panel}
+        className={`${styles.panel} ${phase === "enter" ? styles.panelEnter : styles.panelExit}`}
         role="dialog"
         aria-modal="true"
         aria-label="App Launcher"

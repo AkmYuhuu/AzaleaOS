@@ -62,16 +62,23 @@
   font-size: var(--text-xs);
   font-weight: var(--weight-medium);
   box-shadow: var(--shadow-md);
+  animation: azSlideRightIn var(--duration-slow) var(--ease-out);
   transition:
     background var(--duration-fast) var(--ease-default),
     border-color var(--duration-fast) var(--ease-default),
-    color var(--duration-fast) var(--ease-default);
+    color var(--duration-fast) var(--ease-default),
+    transform var(--duration-fast) var(--ease-default);
 }
 
 .restoreBtn:hover {
   background: var(--color-surface-raised);
   color: var(--color-text);
   border-color: var(--color-border-strong);
+  transform: translateX(2px);
+}
+
+.restoreBtn:active {
+  transform: scale(0.96);
 }
 
 .restoreBtn:focus-visible {

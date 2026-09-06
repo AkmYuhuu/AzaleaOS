@@ -8,6 +8,7 @@
   background: var(--color-surface);
   border-top: 1px solid var(--color-border);
   z-index: 30;
+  animation: azSlideUpIn var(--duration-slow) var(--ease-out);
 }
 
 .startBtn {
@@ -177,6 +178,10 @@
   font-variant-numeric: tabular-nums;
   color: var(--color-text-muted);
   white-space: nowrap;
+}
+
+.dockIconBounce {
+  animation: azDockBounce 420ms var(--ease-out);
 }
 
 @media (prefers-reduced-motion: reduce) {

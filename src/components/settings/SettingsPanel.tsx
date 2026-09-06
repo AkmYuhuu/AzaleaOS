@@ -3,6 +3,7 @@ import { useSettingsStore } from "../../stores/settingsStore";
 import { useWorkspaceStore } from "../../stores/workspaceStore";
 import { useAppTabStore } from "../../stores/appTabStore";
 import { useUpdateStore } from "../../stores/updateStore";
+import { useMountTransition } from "../../hooks/useMountTransition";
 import { CATEGORY_LABEL, CATEGORY_ORDER, type CategoryId } from "../../types/settings";
 import { SettingRow, Switch, Select, Slider } from "./SettingRow";
 import styles from "./SettingsPanel.module.css";
@@ -134,17 +135,18 @@ export default function SettingsPanel(): JSX.Element | null {
     return () => window.clearTimeout(t);
   }, [toast, setToast]);
 
-  if (!isOpen) return null;
+  const { shouldRender, phase } = useMountTransition(isOpen, 160);
+  if (!shouldRender) return null;
 
   const filteredShortcuts = Object.entries(settings.shortcuts.map).filter(
     ([k, v]) => !shortcutFilter || k.toLowerCase().includes(shortcutFilter.toLowerCase()) || v.toLowerCase().includes(shortcutFilter.toLowerCase()),
   );
 
   return (
-    <div className={styles.backdrop} role="presentation" onMouseDown={onBackdrop}>
+    <div className={`${styles.backdrop} ${phase === "enter" ? styles.backdropEnter : styles.backdropExit}`} role="presentation" onMouseDown={onBackdrop}>
       <div
         ref={panelRef}
-        className={styles.panel}
+        className={`${styles.panel} ${phase === "enter" ? styles.panelEnter : styles.panelExit}`}
         role="dialog"
         aria-modal="true"
         aria-label="AzaleaOS Settings"
