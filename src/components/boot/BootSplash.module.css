@@ -11,6 +11,12 @@
   animation: azFadeIn 260ms var(--ease-default);
 }
 
+.overlayShutdown {
+  z-index: 1000;
+  background: radial-gradient(ellipse at 50% 38%, #231518 0%, #141010 55%, #08080a 78%, #050507 100%);
+  animation: azFadeIn 240ms var(--ease-default);
+}
+
 .overlayLeaving {
   animation: bootFadeOut var(--fade-out-ms, 450ms) var(--ease-in-out) forwards;
   pointer-events: none;
@@ -50,11 +56,17 @@
 
 .markGlow {
   position: absolute;
-  inset: -28px;
+  inset: -32px;
   border-radius: 50%;
-  background: radial-gradient(circle, rgba(123, 136, 245, 0.38), transparent 70%);
-  filter: blur(10px);
+  background: radial-gradient(circle, rgba(123, 136, 245, 0.52), rgba(123, 136, 245, 0.16) 42%, transparent 72%);
+  filter: blur(14px);
   animation: bootGlow 2.2s ease-in-out 700ms infinite;
+  z-index: 0;
+  pointer-events: none;
+}
+
+.markGlowShutdown {
+  background: radial-gradient(circle, rgba(225, 90, 90, 0.42), rgba(225, 90, 90, 0.14) 42%, transparent 72%);
 }
 
 @keyframes bootGlow {
@@ -74,21 +86,35 @@
 }
 
 .loading {
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  display: grid;
+  place-items: center;
   margin-top: 8px;
   opacity: 0;
   animation: azFadeIn 400ms var(--ease-default) 320ms both;
+  position: relative;
+  z-index: 2;
+  width: 40px;
+  height: 40px;
+  isolation: isolate;
 }
 
 .spinner {
-  width: 32px;
-  height: 32px;
+  display: block;
+  position: relative;
+  z-index: 2;
+  width: 36px;
+  height: 36px;
   border-radius: 50%;
   border: 3px solid rgba(241, 240, 238, 0.18);
   border-top-color: rgba(123, 136, 245, 0.95);
   animation: bootSpin 1s linear infinite;
+  box-sizing: border-box;
+  flex-shrink: 0;
+}
+
+.spinnerShutdown {
+  border-top-color: rgba(225, 90, 90, 0.92);
+  box-shadow: 0 0 8px rgba(225, 90, 90, 0.22);
 }
 
 @keyframes bootSpin {
@@ -104,6 +130,18 @@
   margin-top: 4px;
   opacity: 0;
   animation: azFadeIn 500ms var(--ease-default) 440ms both;
+}
+
+.shutdownSubtext {
+  font-size: 12px;
+  font-weight: 400;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: rgba(241, 220, 220, 0.42);
+  text-align: center;
+  margin-top: -6px;
+  opacity: 0;
+  animation: azFadeIn 500ms var(--ease-default) 560ms both;
 }
 
 .dots {

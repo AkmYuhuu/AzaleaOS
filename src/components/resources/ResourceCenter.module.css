@@ -3,10 +3,26 @@
   inset: 0;
   z-index: 90;
   background: rgba(16, 16, 20, 0.4);
-  display: grid;
-  place-items: center;
+  display: block;
   padding: var(--space-4);
 }
+
+.snapPreview {
+  position: absolute;
+  inset: 8px;
+  border: 2px dashed var(--color-accent);
+  border-radius: var(--radius-xl);
+  background: color-mix(in srgb, var(--color-surface) 92%, var(--color-accent) 5%);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
+  pointer-events: none;
+  z-index: 1;
+  animation: snapIn 140ms var(--ease-out);
+}
+:global(html[data-theme="dark"]) .snapPreview {
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.45);
+  background: color-mix(in srgb, var(--color-surface) 92%, var(--color-accent) 8%);
+}
+@keyframes snapIn { from { opacity: 0; transform: scale(0.99); } to { opacity: 1; transform: scale(1); } }
 
 .backdropEnter { animation: backdropIn 180ms var(--ease-default); }
 .backdropExit { animation: backdropOut 150ms var(--ease-in-out) forwards; }
@@ -32,6 +48,26 @@
   display: flex;
   flex-direction: column;
   transform-origin: center center;
+}
+.panelRestored {
+  position: absolute;
+  width: min(720px, 90vw);
+  max-height: 80vh;
+}
+.panelMaximized {
+  position: absolute !important;
+  inset: 0 !important;
+  width: 100% !important;
+  height: 100% !important;
+  max-height: 100% !important;
+  border-radius: 0 !important;
+  left: 0 !important;
+  top: 0 !important;
+}
+.panelDragging {
+  opacity: 0.96;
+  box-shadow: var(--shadow-lg);
+  user-select: none;
 }
 
 .panelEnter { animation: panelIn 180ms var(--ease-out); }
@@ -63,7 +99,10 @@
   top: 0;
   background: var(--color-surface-overlay);
   z-index: 1;
+  cursor: grab;
+  user-select: none;
 }
+.header:active { cursor: grabbing; }
 
 .title {
   margin: 0;

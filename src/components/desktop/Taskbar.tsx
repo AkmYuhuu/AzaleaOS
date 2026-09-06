@@ -28,7 +28,7 @@ function useClock(): string {
   return now.toLocaleTimeString(undefined, { hour: "2-digit", minute: "2-digit" });
 }
 
-export default function Taskbar() {
+export default function Taskbar({ onShutdown }: { onShutdown?: () => void }) {
   const activeOsTabId = useWorkspaceStore((s) => s.activeOsTabId);
   const appTabs = useAppTabStore((s) => (activeOsTabId ? s.appTabsByOsTab[activeOsTabId] ?? [] : []));
   const activeAppTabId = useAppTabStore((s) => (activeOsTabId ? s.activeAppTabIdByOsTab[activeOsTabId] ?? null : null));
@@ -162,6 +162,17 @@ export default function Taskbar() {
           </svg>
         </button>
         <span className={styles.clock} aria-label={`Current time ${clock}`}>{clock}</span>
+        <button
+          type="button"
+          className={`${styles.trayBtn} ${styles.trayCloseBtn}`}
+          onClick={() => onShutdown?.()}
+          aria-label="Shutdown AzaleaOS"
+          title="Shutdown (X)"
+        >
+          <svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth={1.6} aria-hidden>
+            <path d="M4 4L12 12M12 4L4 12" strokeLinecap="round" />
+          </svg>
+        </button>
       </div>
     </div>
   );

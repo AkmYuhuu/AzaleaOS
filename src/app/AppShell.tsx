@@ -17,11 +17,13 @@ import SettingsPanel from "../components/settings/SettingsPanel";
 import FilesView from "../components/files/FilesView";
 import SkipLink from "../components/a11y/SkipLink";
 import ErrorBoundary from "../components/a11y/ErrorBoundary";
+import BootSplash from "../components/boot/BootSplash";
 import "../components/a11y/SkipLink.css";
 
 export default function AppShell(): JSX.Element {
   const [sidebarMode, setSidebarMode] = useState<SidebarMode>("expanded");
   const prevModeRef = useRef<SidebarMode>("expanded");
+  const [shutdownPhase, setShutdownPhase] = useState<null | "shutdown" | "restart">(null);
 
   const hideSidebar = useCallback(() => {
     setSidebarMode((curr) => {
@@ -53,6 +55,33 @@ export default function AppShell(): JSX.Element {
       return "hidden";
     });
   }, []);
+
+  const triggerShutdown = useCallback((mode: "shutdown" | "restart" = "shutdown") => {
+    if (shutdownPhase) return;
+    setShutdownPhase(mode);
+    // BootSplash will play SFX; keep overlay min 1200ms then close
+    window.setTimeout(async () => {
+      try {
+        const { getCurrentWindow } = await import("@tauri-apps/api/window");
+        const win = getCurrentWindow();
+        if (mode === "restart") {
+          // For restart mimic close then reload (Tauri doesn't have explicit restart)
+          try { await win.close(); } catch { window.close(); }
+          // fallback reload after short delay
+          window.setTimeout(() => window.location.reload(), 300);
+        } else {
+          try { await win.close(); } catch { window.close(); }
+        }
+      } catch {
+        window.close();
+        // fallback: if window.close blocked, reload for restart
+        if (mode === "restart") window.location.reload();
+      }
+    }, 1200);
+  }, [shutdownPhase]);
+
+  const handleShutdown = useCallback(() => triggerShutdown("shutdown"), [triggerShutdown]);
+  const handleRestart = useCallback(() => triggerShutdown("restart"), [triggerShutdown]);
 
   // §Appearance - actually apply theme setting to <html data-theme>
   useAppliedTheme();
@@ -143,6 +172,21 @@ export default function AppShell(): JSX.Element {
     };
   }, [handleHotkeyToggle]);
 
+  // Expose shutdown via window event for Taskbar header X etc.
+  useEffect(() => {
+    const onShutdownEvent = (ev: Event) => {
+      const detail = (ev as CustomEvent)?.detail;
+      if (detail === "restart" || (detail && detail.type === "restart")) triggerShutdown("restart");
+      else triggerShutdown("shutdown");
+    };
+    window.addEventListener("azalea:shutdown" as string, onShutdownEvent as EventListener);
+    window.addEventListener("azalea:restart" as string, () => triggerShutdown("restart"));
+    return () => {
+      window.removeEventListener("azalea:shutdown" as string, onShutdownEvent as EventListener);
+      window.removeEventListener("azalea:restart" as string, () => triggerShutdown("restart"));
+    };
+  }, [triggerShutdown]);
+
   useEffect(() => {
     const isTypingTarget = (el: EventTarget | null) => {
       if (!(el instanceof HTMLElement)) return false;
@@ -153,6 +197,26 @@ export default function AppShell(): JSX.Element {
     };
 
     const onKeyDown = (e: KeyboardEvent) => {
+      // F11 fullscreen toggle - must work even when typing, not blocked by isTypingTarget
+      if (e.key === "F11") {
+        e.preventDefault();
+        (async () => {
+          try {
+            const { getCurrentWindow } = await import("@tauri-apps/api/window");
+            const win = getCurrentWindow();
+            const isFs = await win.isFullscreen();
+            await win.setFullscreen(!isFs);
+          } catch {
+            // fallback web fullscreen
+            try {
+              if (document.fullscreenElement) await document.exitFullscreen();
+              else await document.documentElement.requestFullscreen();
+            } catch {}
+          }
+        })();
+        return;
+      }
+
       // Shift+Esc toggles Resource Bar - independent, always (spec §10)
       if (e.shiftKey && e.key === "Escape") {
         e.preventDefault();
@@ -278,6 +342,8 @@ export default function AppShell(): JSX.Element {
           onToggleExpandCompact={toggleExpandCompact}
           onHideSidebar={hideSidebar}
           onRestoreSidebar={restoreSidebar}
+          onShutdown={handleShutdown}
+          onRestart={handleRestart}
         />
       </ErrorBoundary>
       <ResourceBar />
@@ -286,6 +352,7 @@ export default function AppShell(): JSX.Element {
       <SettingsPanel />
       <AppLauncher />
       <GlobalToast />
+      {shutdownPhase && <BootSplash variant="shutdown" shutdownMode={shutdownPhase} />}
     </>
   );
 }

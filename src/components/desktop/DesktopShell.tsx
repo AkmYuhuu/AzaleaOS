@@ -10,18 +10,28 @@ function DesktopShellInner({
   onToggleExpandCompact,
   onHideSidebar,
   onRestoreSidebar,
+  onShutdown,
+  onRestart,
 }: {
   sidebarMode: SidebarMode;
   onToggleExpandCompact: () => void;
   onHideSidebar: () => void;
   onRestoreSidebar: () => void;
+  onShutdown?: () => void;
+  onRestart?: () => void;
 }) {
   const isHidden = sidebarMode === "hidden";
 
   return (
     <div className={styles.shellOuter} data-sidebar={sidebarMode}>
       <div className={styles.shell}>
-        <Sidebar mode={sidebarMode} onToggleExpandCompact={onToggleExpandCompact} onHide={onHideSidebar} />
+        <Sidebar
+          mode={sidebarMode}
+          onToggleExpandCompact={onToggleExpandCompact}
+          onHide={onHideSidebar}
+          onShutdown={onShutdown}
+          onRestart={onRestart}
+        />
 
         <div className={styles.main} role="presentation">
           {/* Future ResourceBar placeholder - intentionally empty reserved strip */}
@@ -55,7 +65,7 @@ function DesktopShellInner({
         )}
       </div>
 
-      <Taskbar />
+      <Taskbar onShutdown={onShutdown} />
     </div>
   );
 }

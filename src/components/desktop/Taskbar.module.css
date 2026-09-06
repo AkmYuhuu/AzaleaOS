@@ -4,7 +4,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 12px;
+  padding: 0 12px 22px 12px;
   background: transparent;
   border: none;
   z-index: 30;
@@ -13,12 +13,13 @@
   pointer-events: none;
 }
 
-/* centered cluster: floating pill like macOS dock - truly floating, no bar behind */
+/* centered cluster: floating pill like macOS dock - lifted 18px from bottom to hide sisa black bar */
 .centerCluster {
   position: absolute;
   left: 50%;
-  top: 50%;
-  transform: translate(-50%, -50%);
+  top: auto;
+  bottom: 18px;
+  transform: translateX(-50%);
   display: flex;
   align-items: center;
   gap: 10px;
@@ -171,8 +172,9 @@
   gap: 4px;
   position: absolute;
   right: 12px;
-  top: 50%;
-  transform: translateY(-50%);
+  top: auto;
+  bottom: 18px;
+  transform: none;
   z-index: 1;
   background: color-mix(in srgb, var(--color-surface) 78%, transparent);
   border: 1px solid rgba(255, 255, 255, 0.07);
@@ -216,6 +218,12 @@
   color: var(--color-accent);
 }
 
+.trayCloseBtn:hover {
+  background: color-mix(in srgb, var(--color-danger) 10%, var(--color-bg-subtle));
+  color: var(--color-danger);
+  border-color: color-mix(in srgb, var(--color-danger) 18%, transparent);
+}
+
 .clock {
   padding: 0 10px 0 6px;
   font-size: var(--text-xs);
@@ -228,10 +236,10 @@
   animation: azDockBounce 420ms var(--ease-out);
 }
 
-/* responsive: avoid overlap on narrow screens */
+/* responsive: avoid overlap on narrow screens — keep lift to hide sisa black bar */
 @media (max-width: 720px) {
   .taskbar {
-    padding: 10px 8px;
+    padding: 0 8px 18px 8px;
   }
   .centerCluster {
     position: static;
@@ -252,8 +260,9 @@
   .tray {
     position: absolute;
     right: 8px;
-    top: 50%;
-    transform: translateY(-50%);
+    top: auto;
+    bottom: 14px;
+    transform: none;
     padding: 3px 5px;
     gap: 2px;
     border-radius: 12px;
@@ -266,7 +275,7 @@
 
 @media (max-width: 480px) {
   .taskbar {
-    padding: 8px 6px;
+    padding: 0 6px 16px 6px;
     gap: 6px;
   }
   .centerCluster {
@@ -284,6 +293,9 @@
   }
   .tray {
     right: 6px;
+    bottom: 12px;
+    top: auto;
+    transform: none;
     padding: 2px 4px;
   }
   .clock {

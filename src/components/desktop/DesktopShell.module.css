@@ -17,6 +17,7 @@
   overflow: hidden;
   background: var(--color-bg);
   color: var(--color-text);
+  position: relative;
 }
 
 .main {
@@ -27,6 +28,7 @@
   overflow: hidden;
   background: var(--color-bg);
   position: relative;
+  z-index: 0;
 }
 
 .resourcePlaceholder {
@@ -49,7 +51,7 @@
   position: fixed;
   left: 10px;
   top: 10px;
-  z-index: 20;
+  z-index: 5;
   display: inline-flex;
   align-items: center;
   gap: 8px;
@@ -63,6 +65,7 @@
   font-weight: var(--weight-medium);
   box-shadow: var(--shadow-md);
   animation: azSlideRightIn var(--duration-slow) var(--ease-out);
+  pointer-events: auto;
   transition:
     background var(--duration-fast) var(--ease-default),
     border-color var(--duration-fast) var(--ease-default),

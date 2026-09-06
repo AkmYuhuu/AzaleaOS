@@ -4,6 +4,7 @@ import { useWorkspaceStore } from "../../stores/workspaceStore";
 import { useAppTabStore } from "../../stores/appTabStore";
 import { useUpdateStore } from "../../stores/updateStore";
 import { useMountTransition } from "../../hooks/useMountTransition";
+import { useWindowDrag } from "../../hooks/useWindowDrag";
 import { CATEGORY_LABEL, CATEGORY_ORDER, type CategoryId } from "../../types/settings";
 import { SettingRow, Switch, Select, Slider } from "./SettingRow";
 import styles from "./SettingsPanel.module.css";
@@ -69,6 +70,7 @@ export default function SettingsPanel(): JSX.Element | null {
   }));
 
   const panelRef = useRef<HTMLDivElement>(null);
+  const { maximized: settingsMaximized, toggleMaximized: toggleSettingsMax, isDragging: settingsDragging, showPreview: settingsPreview, onMouseDown: onSettingsDragMouseDown, windowStyle: settingsWindowStyle } = useWindowDrag(panelRef);
   const [shortcutFilter, setShortcutFilter] = useState("");
   const [isOnline, setIsOnline] = useState(() => typeof navigator !== "undefined" ? navigator.onLine : true);
   useEffect(() => {
@@ -144,21 +146,26 @@ export default function SettingsPanel(): JSX.Element | null {
 
   return (
     <div className={`${styles.backdrop} ${phase === "enter" ? styles.backdropEnter : styles.backdropExit}`} role="presentation" onMouseDown={onBackdrop}>
+      {settingsPreview && <div className={styles.snapPreview} aria-hidden />}
       <div
         ref={panelRef}
-        className={`${styles.panel} ${phase === "enter" ? styles.panelEnter : styles.panelExit}`}
+        className={`${styles.panel} ${phase === "enter" ? styles.panelEnter : styles.panelExit} ${settingsMaximized ? styles.panelMaximized : styles.panelRestored} ${settingsDragging ? styles.panelDragging : ""}`}
         role="dialog"
         aria-modal="true"
         aria-label="AzaleaOS Settings"
         tabIndex={-1}
         onMouseDown={(e) => e.stopPropagation()}
+        style={settingsWindowStyle as React.CSSProperties}
       >
-        <div className={styles.header}>
+        <div className={styles.header} onMouseDown={onSettingsDragMouseDown} style={{ cursor: settingsDragging ? "grabbing" : "grab" }}>
           <div>
             <h2 className={styles.title}>AzaleaOS Settings - Full • Azalea only</h2>
             <p className={styles.subtitle}>Local-first • No Windows Settings clone • Native backend is authority for limits</p>
           </div>
-          <button type="button" className={styles.closeBtn} onClick={closeSettings} aria-label="Close Settings" title="Close Settings (Esc)">×</button>
+          <div style={{ display: "flex", gap: 6, alignItems: "center" }}>
+            <button type="button" className={styles.closeBtn} onClick={toggleSettingsMax} aria-label={settingsMaximized ? "Restore" : "Maximize"} title={settingsMaximized ? "Restore" : "Maximize"} style={{ fontSize: 14 }}>{settingsMaximized ? "❐" : "□"}</button>
+            <button type="button" className={styles.closeBtn} onClick={closeSettings} aria-label="Close Settings" title="Close Settings (Esc)">×</button>
+          </div>
         </div>
 
         <div className={styles.layout}>

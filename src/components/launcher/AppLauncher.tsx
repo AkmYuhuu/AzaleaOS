@@ -3,6 +3,7 @@ import { useLauncherStore } from "../../stores/launcherStore";
 import { useWorkspaceStore } from "../../stores/workspaceStore";
 import { useAppTabStore } from "../../stores/appTabStore";
 import { useMountTransition } from "../../hooks/useMountTransition";
+import { useWindowDrag } from "../../hooks/useWindowDrag";
 import { filterAndSort } from "../../utils/fuzzy";
 import { LAUNCHER_ITEMS, type LauncherItem, mapAppDescriptorsToLauncherItems } from "../../features/applications/launcherData";
 import { MAX_APPS_PER_OS_TAB } from "../../types/workspace";
@@ -146,6 +147,9 @@ export default function AppLauncher() {
     [filtered, selectedIndex, handleSelect, closeLauncher, moveSelection, setSelectedIndex],
   );
 
+  const panelRef = useRef<HTMLDivElement>(null);
+  const { maximized: launcherMax, toggleMaximized: toggleLauncherMax, isDragging: launcherDragging, showPreview: launcherPreview, onMouseDown: onLauncherDrag, windowStyle: launcherStyle } = useWindowDrag(panelRef);
+
   const { shouldRender, phase } = useMountTransition(open, 160);
   if (!shouldRender) return null;
 
@@ -157,13 +161,23 @@ export default function AppLauncher() {
       }}
       aria-hidden={false}
     >
+      {launcherPreview && <div className={styles.snapPreview} aria-hidden />}
       <div
-        className={`${styles.panel} ${phase === "enter" ? styles.panelEnter : styles.panelExit}`}
+        ref={panelRef}
+        className={`${styles.panel} ${phase === "enter" ? styles.panelEnter : styles.panelExit} ${launcherMax ? styles.panelMaximized : styles.panelRestored} ${launcherDragging ? styles.panelDragging : ""}`}
         role="dialog"
         aria-modal="true"
         aria-label="App Launcher"
         onMouseDown={(e) => e.stopPropagation()}
+        style={launcherStyle as React.CSSProperties}
       >
+        <div className={styles.dragBar} onMouseDown={onLauncherDrag} style={{ cursor: launcherDragging ? "grabbing" : "grab" }}>
+          <span className={styles.dragTitle}>App Launcher</span>
+          <span className={styles.dragControls}>
+            <button type="button" className={styles.dragBtn} onClick={(e) => { e.stopPropagation(); toggleLauncherMax(); }} aria-label={launcherMax ? "Restore" : "Maximize"} title={launcherMax ? "Restore" : "Maximize"}>{launcherMax ? "❐" : "□"}</button>
+            <button type="button" className={styles.dragBtn} onClick={(e) => { e.stopPropagation(); closeLauncher(); }} aria-label="Close">×</button>
+          </span>
+        </div>
         <div className={styles.header}>
           <span className={styles.searchIcon} aria-hidden>🔍</span>
           <input

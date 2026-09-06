@@ -6,6 +6,7 @@ import EmptyWorkspace from "./EmptyWorkspace";
 import ManagedAppSurface from "./ManagedAppSurface";
 import ExternalFallbackSurface from "./ExternalFallbackSurface";
 import UnsupportedAppSurface from "./UnsupportedAppSurface";
+import WindowFrame from "./WindowFrame";
 import styles from "./WorkspaceViewport.module.css";
 
 export default function WorkspaceViewport() {
@@ -54,19 +55,44 @@ const WorkspaceSurface = memo(function WorkspaceSurface({
 }) {
   const { integration, descriptor, runtime } = useAppIntegration(activeTab);
 
+  const close = useAppTabStore((s) => s.closeAppTab);
   const content = useMemo(() => {
     if (!integration) return null;
     if (integration.kind === "unsupported") {
-      return <UnsupportedAppSurface descriptor={descriptor} label={activeTab.label} reason={integration.reason} />;
+      return (
+        <WindowFrame
+          title={descriptor?.name ?? activeTab.label}
+          stateDotState={activeTab.state}
+          stateText={activeTab.state}
+          kindBadge="unsupported"
+          kindBadgeKind="unsupported"
+          onClose={() => close(activeTab.osTabId, activeTab.id)}
+          onMinimize={() => {}}
+        >
+          <UnsupportedAppSurface descriptor={descriptor} label={activeTab.label} reason={integration.reason} />
+        </WindowFrame>
+      );
     }
     if (integration.kind === "external") {
-      return <ExternalFallbackSurface descriptor={descriptor} label={activeTab.label} />;
+      return (
+        <WindowFrame
+          title={descriptor?.name ?? activeTab.label}
+          stateDotState={activeTab.state}
+          stateText={activeTab.state}
+          kindBadge="external"
+          kindBadgeKind="external"
+          onClose={() => close(activeTab.osTabId, activeTab.id)}
+          onMinimize={() => {}}
+        >
+          <ExternalFallbackSurface descriptor={descriptor} label={activeTab.label} />
+        </WindowFrame>
+      );
     }
     if (integration.kind === "embedded") {
       return <ManagedAppSurface appTab={activeTab} descriptor={descriptor} integrationKind="embedded" runtime={runtime} embedded />;
     }
     return <ManagedAppSurface appTab={activeTab} descriptor={descriptor} integrationKind="managed" runtime={runtime} />;
-  }, [integration, descriptor, runtime, activeTab]);
+  }, [integration, descriptor, runtime, activeTab, close]);
 
   const kind = integration?.kind ?? "managed";
 

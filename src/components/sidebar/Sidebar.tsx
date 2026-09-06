@@ -66,10 +66,14 @@ export default function Sidebar({
   mode,
   onToggleExpandCompact,
   onHide,
+  onShutdown,
+  onRestart,
 }: {
   mode: SidebarMode;
   onToggleExpandCompact: () => void;
   onHide: () => void;
+  onShutdown?: () => void;
+  onRestart?: () => void;
 }) {
   const osTabs = useWorkspaceStore((s) => s.osTabs);
   const activeId = useWorkspaceStore((s) => s.activeOsTabId);
@@ -80,7 +84,11 @@ export default function Sidebar({
 
   const [pendingCloseId, setPendingCloseId] = useState<string | null>(null);
 
-  if (mode === "hidden") return null;
+  const isHidden = mode === "hidden";
+  // hidden: keep in flex with width 0 transition (push layout), not overlay translate; hide content via CSS
+  if (isHidden) {
+    return <aside className={`${styles.sidebar} ${styles.hidden}`} aria-label="Primary" data-mode={mode} aria-hidden />;
+  }
 
   const isCompact = mode === "compact";
   const atLimit = osTabs.length >= MAX_OS_TABS;
@@ -243,6 +251,33 @@ export default function Sidebar({
               Ctrl+Alt+A
             </span>
           )}
+        </div>
+        {/* Power / Restart — visible in normal & fullscreen, below toggle/hide */}
+        <div className={styles.footerPowerGroup} role="group" aria-label="Power">
+          <button
+            type="button"
+            className={styles.powerBtn}
+            onClick={() => onShutdown?.()}
+            aria-label="Shutdown AzaleaOS"
+            title="Shutdown (power off)"
+          >
+            <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth={1.5} aria-hidden>
+              <path d="M8 3V8" strokeLinecap="round" />
+              <path d="M5 4.5A5 5 0 1 0 11 4.5" strokeLinecap="round" />
+            </svg>
+          </button>
+          <button
+            type="button"
+            className={styles.restartBtn}
+            onClick={() => onRestart?.()}
+            aria-label="Restart AzaleaOS"
+            title="Restart"
+          >
+            <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth={1.35} aria-hidden>
+              <path d="M13 8A5 5 0 1 1 3.5 5.2" strokeLinecap="round" strokeLinejoin="round" />
+              <path d="M13 3V5.5H10.5" strokeLinecap="round" strokeLinejoin="round" />
+            </svg>
+          </button>
         </div>
       </aside>
 

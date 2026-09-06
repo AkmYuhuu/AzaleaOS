@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef } from "react";
 import { useResourceStore } from "../../stores/resourceStore";
 import { useMountTransition } from "../../hooks/useMountTransition";
+import { useWindowDrag } from "../../hooks/useWindowDrag";
 import styles from "./ResourceCenter.module.css";
 
 function formatUptime(sec: number): string {
@@ -56,6 +57,7 @@ function ResourceCenterInner({ phase }: { phase: "enter" | "exit" }): JSX.Elemen
   const isOpen = true as const;
 
   const panelRef = useRef<HTMLDivElement>(null);
+  const { maximized: rcMax, toggleMaximized: toggleRcMax, isDragging: rcDragging, showPreview: rcPreview, onMouseDown: onRcDrag, windowStyle: rcStyle } = useWindowDrag(panelRef);
 
   const onBackdrop = useCallback(
     (e: React.MouseEvent) => {
@@ -102,22 +104,27 @@ function ResourceCenterInner({ phase }: { phase: "enter" | "exit" }): JSX.Elemen
       onMouseDown={onBackdrop}
       aria-hidden={false}
     >
+      {rcPreview && <div className={styles.snapPreview} aria-hidden />}
       <div
         ref={panelRef}
-        className={`${styles.panel} ${phase === "enter" ? styles.panelEnter : styles.panelExit}`}
+        className={`${styles.panel} ${phase === "enter" ? styles.panelEnter : styles.panelExit} ${rcMax ? styles.panelMaximized : styles.panelRestored} ${rcDragging ? styles.panelDragging : ""}`}
         role="dialog"
         aria-modal="true"
         aria-label="Azalea Resource Center"
         tabIndex={-1}
+        style={rcStyle as React.CSSProperties}
       >
-        <div className={styles.header}>
+        <div className={styles.header} onMouseDown={onRcDrag} style={{ cursor: rcDragging ? "grabbing" : "grab" }}>
           <div>
             <h2 className={styles.title}>Azalea Resource Center</h2>
             <p className={styles.subtitle}>Adaptive optimization • Memory pressure • Background resource reduction</p>
           </div>
-          <button type="button" className={styles.closeBtn} onClick={closeCenter} aria-label="Close Resource Center" title="Close (Esc)">
-            ×
-          </button>
+          <div style={{ display: "flex", gap: 6, alignItems: "center" }}>
+            <button type="button" className={styles.closeBtn} onClick={(e) => { e.stopPropagation(); toggleRcMax(); }} aria-label={rcMax ? "Restore" : "Maximize"} title={rcMax ? "Restore" : "Maximize"} style={{ fontSize: 14 }}>{rcMax ? "❐" : "□"}</button>
+            <button type="button" className={styles.closeBtn} onClick={closeCenter} aria-label="Close Resource Center" title="Close (Esc)">
+              ×
+            </button>
+          </div>
         </div>
 
         <div className={styles.body}>

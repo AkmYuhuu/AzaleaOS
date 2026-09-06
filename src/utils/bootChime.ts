@@ -72,3 +72,34 @@ export function playBootChime(): void {
     // Audio is a nice-to-have; never let it break boot.
   }
 }
+
+/**
+ * Shutdown chime - reverse descending arpeggio (880->659->554->440) with low pad.
+ * Mirrors boot chime but descending for exit feel.
+ */
+export function playShutdownChime(): void {
+  try {
+    const audioCtx = getCtx();
+    const run = () => {
+      const master = audioCtx.createGain();
+      master.gain.value = 0.45;
+      master.connect(audioCtx.destination);
+      const now = audioCtx.currentTime + 0.05;
+      // Descending: A5 -> E5 -> C#5 -> A4
+      tone(audioCtx, master, 880.0, now, 0.8, 0.13, "triangle");
+      tone(audioCtx, master, 659.25, now + 0.12, 0.8, 0.12, "sine");
+      tone(audioCtx, master, 554.37, now + 0.24, 0.8, 0.12, "sine");
+      tone(audioCtx, master, 440.0, now + 0.36, 1.0, 0.14, "sine");
+      // low pad descending with slight detune for warmth
+      tone(audioCtx, master, 220.0, now, 1.2, 0.06, "sine");
+      tone(audioCtx, master, 110.0, now + 0.15, 1.0, 0.04, "sine");
+    };
+    if (audioCtx.state === "suspended") {
+      audioCtx.resume().then(run).catch(() => { try { run(); } catch {} });
+    } else {
+      run();
+    }
+  } catch {
+    // ignore
+  }
+}

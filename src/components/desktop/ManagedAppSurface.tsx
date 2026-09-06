@@ -2,6 +2,7 @@ import { useState, useMemo, useRef, useEffect } from "react";
 import type { AppTab, AppDescriptor } from "../../types/appTab";
 import type { AppRuntimeStub } from "../../types/appIntegration";
 import { useAppTabStore } from "../../stores/appTabStore";
+import WindowFrame from "./WindowFrame";
 import styles from "./ManagedAppSurface.module.css";
 
 type Props = {
@@ -57,42 +58,59 @@ export default function ManagedAppSurface({ appTab, descriptor, integrationKind,
   const onMinimize = () => showToast("Minimize - window.minimize called");
   const onClose = () => close(appTab.osTabId, appTab.id);
 
+  const onRequestFullscreen = async () => {
+    try {
+      const { getCurrentWindow } = await import("@tauri-apps/api/window");
+      const win = getCurrentWindow();
+      const isFs = await win.isFullscreen();
+      await win.setFullscreen(!isFs);
+    } catch {
+      try {
+        if (document.fullscreenElement) await document.exitFullscreen();
+        else await document.documentElement.requestFullscreen();
+      } catch {}
+    }
+  };
+
+  const headerMeta = (
+    <div className={styles.metaRow} aria-label="Runtime info" style={{ marginLeft: 0, marginTop: 2 }}>
+      <span className={styles.metaItem} title={String(windowId)}>
+        window <code className={styles.mono}>{windowId}</code>
+      </span>
+      <span className={styles.sep} aria-hidden>·</span>
+      <span className={styles.metaItem}>
+        pid <code className={styles.mono}>{processId}</code>
+      </span>
+      {execPath && (
+        <>
+          <span className={styles.sep} aria-hidden>·</span>
+          <span className={styles.metaItem} title={execPath} style={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", maxWidth: 220 }}>
+            {execPath}
+          </span>
+        </>
+      )}
+    </div>
+  );
+
   return (
-    <div className={styles.shell} role="region" aria-label={`${name} surface`}>
-      <div className={styles.panel}>
-        <div className={styles.header}>
-          <div className={styles.titleRow}>
-            <span className={styles.appName} title={name}>
-              {name}
-            </span>
-            <span className={styles.stateDot} data-state={stateLabel} aria-hidden />
-            <span className={styles.stateText} data-state={stateLabel}>
-              {stateLabel}
-            </span>
-            <span className={styles.kindBadge} data-kind={integrationKind}>
-              {isEmbedded ? "embedded" : "managed"}
-            </span>
-          </div>
-          <div className={styles.metaRow} aria-label="Runtime info">
-            <span className={styles.metaItem} title={String(windowId)}>
-              window <code className={styles.mono}>{windowId}</code>
-            </span>
-            <span className={styles.sep} aria-hidden>·</span>
-            <span className={styles.metaItem}>
-              pid <code className={styles.mono}>{processId}</code>
-            </span>
-            {execPath && (
-              <>
-                <span className={styles.sep} aria-hidden>·</span>
-                <span className={styles.metaItem} title={execPath} style={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", maxWidth: 220 }}>
-                  {execPath}
-                </span>
-              </>
-            )}
-          </div>
+    <WindowFrame
+      title={name}
+      stateDotState={stateLabel}
+      stateText={stateLabel}
+      kindBadge={isEmbedded ? "embedded" : "managed"}
+      kindBadgeKind={integrationKind}
+      onClose={onClose}
+      onMinimize={onMinimize}
+      allowFullscreen
+      onRequestFullscreen={onRequestFullscreen}
+      headerMeta={undefined}
+    >
+      <div style={{ display: "grid" }}>
+        {/* keep metaRow inside frame body top for visibility when restored - headerMeta already in header, duplicate? keep one in body */}
+        <div style={{ padding: "8px 14px 6px", borderBottom: "1px solid var(--color-border)", background: "color-mix(in srgb, var(--color-surface) 96%, var(--color-bg-subtle))" }}>
+          {headerMeta}
         </div>
 
-        {/* Lifecycle badge - backend-driven §18 */}
         <div className={styles.lifecycleRow} aria-label="Lifecycle status">
           <span className={styles.lifecycleBadge} data-state={stateLabel}>
             Lifecycle: {stateLabel.toUpperCase()} <span className={styles.lifecycleSep} aria-hidden>•</span> {lifecycleReason} <span className={styles.lifecycleSep} aria-hidden>•</span> {lifecycleDetail}
@@ -100,14 +118,12 @@ export default function ManagedAppSurface({ appTab, descriptor, integrationKind,
           {lifecycleAt && <span className={styles.lifecycleAt} title={String(lifecycleMeta?.at)}>{lifecycleAt}</span>}
         </div>
 
-        {/* State machine pills - subtle, not neon */}
         <div className={styles.pillRow} role="list" aria-label="Lifecycle state machine">
           {pills.map((p) => (
             <span key={p} role="listitem" className={`${styles.pill} ${appTab.state === p ? styles.pillActive : ""}`} data-state={p}>
               {p}
             </span>
           ))}
-          {/* game/unavailable pills shown only when relevant - keeps row calm */}
           {(isGame || isUnavailable) && (
             <>
               <span className={`${styles.pill} ${isGame ? styles.pillActive : ""}`} data-state="game">game</span>
@@ -183,6 +199,6 @@ export default function ManagedAppSurface({ appTab, descriptor, integrationKind,
           </span>
         </div>
       </div>
-    </div>
+    </WindowFrame>
   );
 }
