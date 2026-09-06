@@ -4,8 +4,10 @@ import { useWorkspaceStore } from "../../stores/workspaceStore";
 import { useAppTabStore } from "../../stores/appTabStore";
 import { useMountTransition } from "../../hooks/useMountTransition";
 import { filterAndSort } from "../../utils/fuzzy";
-import { LAUNCHER_ITEMS, type LauncherItem } from "../../features/applications/launcherData";
+import { LAUNCHER_ITEMS, type LauncherItem, mapAppDescriptorsToLauncherItems } from "../../features/applications/launcherData";
 import { MAX_APPS_PER_OS_TAB } from "../../types/workspace";
+import { invokeTauri } from "../../services/tauri";
+import type { AppDescriptor } from "../../types/appTab";
 import styles from "./AppLauncher.module.css";
 
 function kindIcon(item: LauncherItem): string {
@@ -30,9 +32,32 @@ export default function AppLauncher() {
   const [limitMsg, setLimitMsg] = useState<string | null>(null);
   const [placeholderMsg, setPlaceholderMsg] = useState<string | null>(null);
 
+  // real apps via Tauri — placeholder removed: LAUNCHER_ITEMS is tool-only fallback, real catalog loaded via app_list
+  const [dynamicItems, setDynamicItems] = useState<LauncherItem[]>(() => LAUNCHER_ITEMS);
+
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      try {
+        const apps = await invokeTauri<AppDescriptor[]>("app_list");
+        if (cancelled) return;
+        if (Array.isArray(apps) && apps.length > 0) {
+          const appItems = mapAppDescriptorsToLauncherItems(apps);
+          const toolItems = LAUNCHER_ITEMS.filter((i) => i.kind === "tool");
+          setDynamicItems([...appItems, ...toolItems]);
+        }
+      } catch {
+        // Tauri unavailable (vite dev) — keep fallback tool-only
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
   useEffect(() => () => { if (placeholderTimerRef.current !== null) window.clearTimeout(placeholderTimerRef.current); }, []);
 
-  const filtered = useMemo(() => filterAndSort(LAUNCHER_ITEMS, query), [query]);
+  const filtered = useMemo(() => filterAndSort(dynamicItems, query), [dynamicItems, query]);
 
   // clamp selectedIndex when filtered changes
   useEffect(() => {
@@ -51,7 +76,6 @@ export default function AppLauncher() {
       setPlaceholderMsg(null);
       requestAnimationFrame(() => inputRef.current?.focus());
     } else {
-      // restore
       if (prevFocusRef.current) {
         try { prevFocusRef.current.focus(); } catch { /* ignore */ }
       }
@@ -82,7 +106,6 @@ export default function AppLauncher() {
         setLimitMsg(null);
         closeLauncher();
       } else {
-        // tool/file - placeholder contract for STEP 5
         setLimitMsg(null);
         setPlaceholderMsg(`"${item.label}" - Tool/File open contract will be implemented in Files/Settings step`);
         if (placeholderTimerRef.current !== null) window.clearTimeout(placeholderTimerRef.current);
@@ -113,11 +136,9 @@ export default function AppLauncher() {
         e.preventDefault();
         closeLauncher();
       } else if (e.key === "Tab") {
-        // keep focus inside launcher - prevent tabbing to behind
         e.preventDefault();
         if (e.shiftKey) moveSelection(-1);
         else moveSelection(1);
-        // clamp after move
         const cur = useLauncherStore.getState().selectedIndex;
         if (cur >= filtered.length && filtered.length > 0) setSelectedIndex(filtered.length - 1);
       }

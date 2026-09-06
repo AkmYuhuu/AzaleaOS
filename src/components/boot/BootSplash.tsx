@@ -34,11 +34,11 @@ export default function BootSplash() {
         <img src="/icon-azaleaos.png" alt="" width={128} height={128} className={styles.markImg} />
         <div className={styles.markGlow} aria-hidden />
       </div>
-      <div className={styles.wordmark}>AzaleaOS</div>
       <div className={styles.loading} aria-hidden>
         <div className={styles.spinner} />
       </div>
-      <div className={styles.loadingText}>Masuk Ke AzaleaOS, Harap tunggu</div>
+      <div className={styles.loadingText}>Masuk AzaleaOS, Harap tunggu</div>
+      <div className={styles.wordmark}>AzaleaOS</div>
       <div className={styles.dots} aria-hidden>
         <span className={styles.dot} />
         <span className={styles.dot} />

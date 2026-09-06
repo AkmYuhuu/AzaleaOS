@@ -9,7 +9,8 @@ interface Location {
   icon: "home" | "desktop" | "documents" | "downloads" | "pictures" | "videos" | "drive" | "recent";
 }
 
-const LOCATIONS: Location[] = [
+// fallback — overridden at init via Tauri homeDir() (real OS home, not mock). Keeps web-dev fallback for `vite dev` without Tauri.
+let LOCATIONS: Location[] = [
   { id: "home", label: "Home", path: "C:\\Users\\User", icon: "home" },
   { id: "desktop", label: "Desktop", path: "C:\\Users\\User\\Desktop", icon: "desktop" },
   { id: "documents", label: "Documents", path: "C:\\Users\\User\\Documents", icon: "documents" },
@@ -19,6 +20,26 @@ const LOCATIONS: Location[] = [
   { id: "drives", label: "Drives", path: "drives:", icon: "drive" },
   { id: "recent", label: "Recent", path: "recent:", icon: "recent" },
 ];
+
+function getHomePath(): string {
+  return LOCATIONS.find((l) => l.id === "home")!.path;
+}
+
+function applyHomeDir(home: string): void {
+  // normalize: trim trailing slash, ensure Windows backslash style
+  let h = home.replace(/\//g, "\\").replace(/\\+$/, "");
+  if (!h) return;
+  // update LOCATIONS in place for resolveLocationId / parentPath consumers
+  LOCATIONS = LOCATIONS.map((loc) => {
+    if (loc.id === "home") return { ...loc, path: h };
+    if (loc.id === "desktop") return { ...loc, path: `${h}\\Desktop` };
+    if (loc.id === "documents") return { ...loc, path: `${h}\\Documents` };
+    if (loc.id === "downloads") return { ...loc, path: `${h}\\Downloads` };
+    if (loc.id === "pictures") return { ...loc, path: `${h}\\Pictures` };
+    if (loc.id === "videos") return { ...loc, path: `${h}\\Videos` };
+    return loc;
+  });
+}
 
 type FilesystemStore = {
   isOpen: boolean;
@@ -50,17 +71,14 @@ type FilesystemStore = {
   _load: (path: string, pushHistory?: boolean) => Promise<void>;
 };
 
-const HOME_PATH = LOCATIONS.find((l) => l.id === "home")!.path;
-
 function parentPath(p: string): string | null {
   if (p === "drives:" || p === "recent:" || p === "C:\\" || p === "D:\\") return null;
   const n = p.replace(/\\+$/, "");
   const idx = n.lastIndexOf("\\");
   if (idx <= 1) {
-    // C:\Users\Alex → C:\ etc. For top-level home, go to drives? calm: go to Home
+    const home = getHomePath();
     if (n.toLowerCase().startsWith("c:\\users")) {
-      // climb to home then drives
-      if (n.toLowerCase() === HOME_PATH.toLowerCase()) return "drives:";
+      if (n.toLowerCase() === home.toLowerCase()) return "drives:";
     }
     if (idx === 2 && n[1] === ":") return "drives:";
     return idx === -1 ? null : n.slice(0, idx) || null;
@@ -84,10 +102,10 @@ function resolveLocationId(path: string): FsLocationId {
 export const useFilesystemStore = create<FilesystemStore>((set, get) => ({
   isOpen: false,
   locationId: "home",
-  currentPath: HOME_PATH,
+  currentPath: getHomePath(),
   entries: [],
   selectedPaths: [],
-  pathHistory: [HOME_PATH],
+  pathHistory: [getHomePath()],
   historyIndex: 0,
   recent: [],
   isLoading: false,
@@ -95,7 +113,6 @@ export const useFilesystemStore = create<FilesystemStore>((set, get) => ({
 
   open: () => {
     set({ isOpen: true });
-    // load current path on open if empty
     const s = get();
     if (s.entries.length === 0 && !s.isLoading) void get()._load(s.currentPath, false);
   },
@@ -110,7 +127,6 @@ export const useFilesystemStore = create<FilesystemStore>((set, get) => ({
         let history = prev.pathHistory;
         let idx = prev.historyIndex;
         if (pushHistory) {
-          // truncate forward
           history = history.slice(0, idx + 1);
           if (history[history.length - 1] !== path) history.push(path);
           idx = history.length - 1;
@@ -254,8 +270,38 @@ export const useFilesystemStore = create<FilesystemStore>((set, get) => ({
   },
 }));
 
-// initial load side-effect helper for AppShell
-export function initFilesystemStore(): void {
+// initial load side-effect helper for AppShell — resolves real OS home via Tauri path.homeDir()
+export async function initFilesystemStore(): Promise<void> {
+  // try real home via Tauri API (works inside Tauri webview; no-op in pure web dev)
+  try {
+    const mod = await import("@tauri-apps/api/path");
+    if (typeof mod.homeDir === "function") {
+      const home = await mod.homeDir();
+      if (home && typeof home === "string" && home.trim().length > 0) {
+        applyHomeDir(home);
+        const s = useFilesystemStore.getState();
+        // sync store currentPath/history to real home if still on fallback
+        if (s.currentPath.toLowerCase() === "c:\\users\\user" || s.currentPath === "C:\\Users\\User") {
+          useFilesystemStore.setState({
+            currentPath: getHomePath(),
+            locationId: resolveLocationId(getHomePath()),
+            pathHistory: [getHomePath()],
+            historyIndex: 0,
+          });
+        }
+        console.info("[filesystem] home resolved via Tauri homeDir():", getHomePath());
+      }
+    }
+  } catch (e) {
+    // Tauri not available (vite dev) — keep fallback C:\Users\User and log once
+    console.info("[filesystem] Tauri homeDir unavailable, using fallback:", getHomePath(), e instanceof Error ? e.message : String(e ?? ""));
+  }
+
   const s = useFilesystemStore.getState();
   void s._load(s.currentPath, false);
+}
+
+// allow tests/consumers to read resolved locations (not part of store state)
+export function getFilesystemLocations() {
+  return [...LOCATIONS];
 }

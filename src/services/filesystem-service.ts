@@ -23,6 +23,7 @@ async function tryInvoke<T>(cmd: string, args?: Record<string, unknown>): Promis
   }
 }
 
+// mock removed — real Tauri only, no dummy fallback. Returns [] if Tauri unavailable (web dev), caller handles empty.
 export async function filesystemList(path: string): Promise<FsEntry[]> {
   let real = await tryInvoke<unknown[]>("filesystem_list", { path });
   if (real === null) real = await tryInvoke<unknown[]>("filesystem.list", { path });

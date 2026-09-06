@@ -63,21 +63,23 @@
 }
 
 .wordmark {
-  font-size: 18px;
-  font-weight: 700;
-  letter-spacing: 0.06em;
-  color: #f1f0ee;
+  font-size: 12.5px;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: rgba(241, 240, 238, 0.42);
   opacity: 0;
-  animation: azFadeIn 500ms var(--ease-default) 260ms both;
+  margin-top: 4px;
+  animation: azFadeIn 500ms var(--ease-default) 540ms both;
 }
 
 .loading {
   display: flex;
   align-items: center;
   justify-content: center;
-  margin-top: 6px;
+  margin-top: 8px;
   opacity: 0;
-  animation: azFadeIn 400ms var(--ease-default) 420ms both;
+  animation: azFadeIn 400ms var(--ease-default) 320ms both;
 }
 
 .spinner {
@@ -94,14 +96,14 @@
 }
 
 .loadingText {
-  font-size: 13px;
+  font-size: 14px;
   font-weight: 500;
   letter-spacing: 0.02em;
-  color: rgba(241, 240, 238, 0.78);
+  color: rgba(241, 240, 238, 0.72);
   text-align: center;
-  margin-top: 2px;
+  margin-top: 4px;
   opacity: 0;
-  animation: azFadeIn 500ms var(--ease-default) 520ms both;
+  animation: azFadeIn 500ms var(--ease-default) 440ms both;
 }
 
 .dots {
@@ -109,7 +111,7 @@
   gap: 8px;
   margin-top: 6px;
   opacity: 0;
-  animation: azFadeIn 400ms var(--ease-default) 600ms both;
+  animation: azFadeIn 400ms var(--ease-default) 620ms both;
 }
 
 .dot {
