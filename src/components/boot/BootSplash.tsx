@@ -26,14 +26,19 @@ export default function BootSplash() {
     <div
       className={`${styles.overlay} ${phase === "leaving" ? styles.overlayLeaving : ""}`}
       role="status"
+      aria-live="polite"
       aria-label="AzaleaOS is starting"
       style={{ "--fade-out-ms": `${FADE_OUT_MS}ms` } as React.CSSProperties}
     >
       <div className={styles.mark}>
-        <img src="/icon-azaleaos.png" alt="" width={72} height={72} className={styles.markImg} />
+        <img src="/icon-azaleaos.png" alt="" width={128} height={128} className={styles.markImg} />
         <div className={styles.markGlow} aria-hidden />
       </div>
       <div className={styles.wordmark}>AzaleaOS</div>
+      <div className={styles.loading} aria-hidden>
+        <div className={styles.spinner} />
+      </div>
+      <div className={styles.loadingText}>Masuk Ke AzaleaOS, Harap tunggu</div>
       <div className={styles.dots} aria-hidden>
         <span className={styles.dot} />
         <span className={styles.dot} />

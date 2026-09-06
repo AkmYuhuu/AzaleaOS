@@ -17,11 +17,7 @@ const toolItems: LauncherItem[] = [
   { id: "tool-files", label: "Files", kind: "tool", icon: "📁", category: "system" },
 ];
 
-const fileItems: LauncherItem[] = [
-  { id: "file-report", label: "Documents/report.pdf", kind: "file", icon: "📄" },
-  { id: "file-notes", label: "Documents/notes.md", kind: "file", icon: "📝" },
-  { id: "file-screenshot", label: "Pictures/screenshot.png", kind: "file", icon: "🖼️" },
-];
+// file items no longer mocked — sourced from filesystemStore via Tauri (Windows user local)
 
 const appDescriptors: AppDescriptor[] = [
   { id: "vscode", name: "VS Code", category: "developer", supported: true, source: "windows" },
@@ -41,4 +37,4 @@ const appItems: LauncherItem[] = appDescriptors.map((d) => ({
   category: d.category,
 }));
 
-export const LAUNCHER_ITEMS: LauncherItem[] = [...appItems, ...toolItems, ...fileItems];
+export const LAUNCHER_ITEMS: LauncherItem[] = [...appItems, ...toolItems];

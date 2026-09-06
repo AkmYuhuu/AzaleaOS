@@ -43,7 +43,11 @@
   }
 }
 
-/* Explicit data-theme overrides for future settings - respects system by default */
+/* Explicit data-theme overrides for future settings - respects system by default
+   Note: --color-accent / --color-accent-hover / --color-accent-subtle / --color-focus-ring
+   are overridden live via inline style on :root by useAppliedTheme (Settings > Appearance > accentColor).
+   Inline style wins over these selectors, so accent stays live across light/dark themes. */
+
 [data-theme="light"] {
   --color-bg: #f8f7f5;
   --color-bg-subtle: #f1efeB;

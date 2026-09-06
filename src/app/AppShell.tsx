@@ -194,8 +194,15 @@ export default function AppShell(): JSX.Element {
       }
 
       const launcher = useLauncherStore.getState();
-      // Ctrl+Space - launcher toggle (global, §9/§15.7)
-      if (e.ctrlKey && !e.altKey && !e.metaKey && e.code === "Space") {
+      // Ctrl+Space - launcher toggle (global, §9/§15.7) — robust: e.code vs e.key vs keyCode
+      const isSpace =
+        e.code === "Space" ||
+        e.key === " " ||
+        e.key === "Space" ||
+        e.key === "Spacebar" ||
+        (e as unknown as { keyCode?: number }).keyCode === 32 ||
+        (e as unknown as { which?: number }).which === 32;
+      if (e.ctrlKey && !e.altKey && !e.metaKey && isSpace) {
         e.preventDefault();
         if (launcher.open) launcher.closeLauncher();
         else launcher.openLauncher();

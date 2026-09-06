@@ -72,19 +72,20 @@ export default function Taskbar() {
 
   return (
     <div className={styles.taskbar} role="toolbar" aria-label="Taskbar">
-      <button
-        type="button"
-        className={styles.startBtn}
-        onClick={openLauncher}
-        aria-label="Open App Launcher (Ctrl+Space)"
-        title="AzaleaOS - Open App Launcher (Ctrl+Space)"
-      >
-        <span className={styles.startMark} aria-hidden>
-          <img src="/icon-azaleaos.png" alt="" width={20} height={20} />
-        </span>
-      </button>
+      <div className={styles.centerCluster}>
+        <button
+          type="button"
+          className={styles.startBtn}
+          onClick={openLauncher}
+          aria-label="Open App Launcher (Ctrl+Space)"
+          title="AzaleaOS - Open App Launcher (Ctrl+Space)"
+        >
+          <span className={styles.startMark} aria-hidden>
+            <img src="/icon-azaleaos.png" alt="" width={20} height={20} />
+          </span>
+        </button>
 
-      <div className={styles.dock} role="group" aria-label="Pinned and running apps">
+        <div className={styles.dock} role="group" aria-label="Pinned and running apps">
         {pinnedItems.map((item) => {
           const descriptor = item.descriptor!;
           const running = runningByAppId.has(descriptor.id);
@@ -120,6 +121,7 @@ export default function Taskbar() {
             <span className={styles.runningDot} aria-hidden />
           </button>
         ))}
+        </div>
       </div>
 
       <div className={styles.tray} role="group" aria-label="System tray">

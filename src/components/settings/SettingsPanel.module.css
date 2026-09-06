@@ -171,3 +171,29 @@
   .sliderWrap { min-width: 140px; }
   .textInput { min-width: 140px; }
 }
+
+/* Appearance live: transparency via --az-panel-opacity (0..1) from useAppliedTheme */
+.panel {
+  background: color-mix(in srgb, var(--color-surface-overlay) calc(var(--az-panel-opacity, 0.92) * 100%), transparent);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+.header {
+  background: color-mix(in srgb, var(--color-surface-overlay) calc(var(--az-panel-opacity, 0.92) * 100%), transparent);
+}
+
+/* Appearance live: animationLevel via [data-anim] on :root from useAppliedTheme */
+:global([data-anim="none"]) .backdropEnter,
+:global([data-anim="none"]) .backdropExit,
+:global([data-anim="none"]) .panelEnter,
+:global([data-anim="none"]) .panelExit {
+  animation: none !important;
+}
+:global([data-anim="reduced"]) .backdropEnter,
+:global([data-anim="reduced"]) .panelEnter {
+  animation-duration: 90ms !important;
+}
+:global([data-anim="reduced"]) .backdropExit,
+:global([data-anim="reduced"]) .panelExit {
+  animation-duration: 75ms !important;
+}

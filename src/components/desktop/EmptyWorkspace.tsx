@@ -1,33 +1,44 @@
-import styles from "./WorkspaceViewport.module.css";
-import { useLauncherStore } from "../../stores/launcherStore";
-
+// Empty workspace is intentionally minimal — plain wallpaper like macOS/Linux.
+// No center card/brain icon that blocks the viewport. Subtle bottom hint only.
 export default function EmptyWorkspace({ workspaceName = "Development" }: { workspaceName?: string }) {
-  const openLauncher = useLauncherStore((s) => s.openLauncher);
   return (
-    <div className={styles.emptyWrap} role="status" aria-live="polite">
-      <div className={styles.emptyCard}>
-        <div className={styles.emptyKicker} aria-hidden>
-          <span className={styles.kickerDot} />
-          Workspace
-        </div>
-        <div aria-hidden style={{ width: 56, height: 56, display: "grid", placeItems: "center", borderRadius: "var(--radius-lg)", background: "var(--color-bg-subtle)", border: "1px solid var(--color-border)", color: "var(--color-accent)", margin: "2px 0" }}>
-          <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.35}>
-            <rect x="3" y="7" width="18" height="12" rx="1.5" />
-            <path d="M7 7V5a2 2 0 0 1 2-2h6a2 2 0 0 1 2 2v2" />
-            <circle cx="12" cy="13" r="2.2" />
-          </svg>
-        </div>
-        <h1 className={styles.emptyTitle} title={workspaceName} style={{ maxWidth: "100%", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{workspaceName}</h1>
-        <p className={styles.emptyText}>Nothing is open yet. Launch an app to start this workspace.</p>
-
-        <button type="button" className={styles.launcherBtn} onClick={openLauncher} aria-label="Open App Launcher" title="Open App Launcher (Ctrl+Space)">
-          Open App Launcher
-        </button>
-
-        <p className={styles.emptyHint}>
-          Press <kbd className={styles.kbd}>Ctrl</kbd> + <kbd className={styles.kbd}>Space</kbd> · <span className={styles.hintMuted}>+ New App (10 max)</span>
-        </p>
-      </div>
+    <div
+      role="status"
+      aria-live="polite"
+      aria-label={`${workspaceName} — empty workspace`}
+      style={{
+        position: "absolute",
+        bottom: 24,
+        left: "50%",
+        transform: "translateX(-50%)",
+        zIndex: 1,
+        pointerEvents: "none",
+        display: "inline-flex",
+        alignItems: "center",
+        gap: 6,
+        padding: "6px 10px",
+        borderRadius: 999,
+        fontSize: 11,
+        lineHeight: 1,
+        letterSpacing: "0.02em",
+        color: "var(--color-text-faint)",
+        background: "color-mix(in srgb, var(--color-surface) 72%, transparent)",
+        border: "1px solid color-mix(in srgb, var(--color-border) 70%, transparent)",
+        backdropFilter: "blur(6px)",
+        opacity: 0.85,
+        whiteSpace: "nowrap",
+        maxWidth: "calc(100% - 32px)",
+        overflow: "hidden",
+        textOverflow: "ellipsis",
+      }}
+    >
+      <span style={{ fontWeight: 600, color: "var(--color-text-muted)", overflow: "hidden", textOverflow: "ellipsis" }}>
+        {workspaceName}
+      </span>
+      <span aria-hidden style={{ opacity: 0.5 }}>
+        ·
+      </span>
+      <span>Press Ctrl+Space to launch</span>
     </div>
   );
 }

@@ -3,12 +3,24 @@
   height: 52px;
   display: flex;
   align-items: center;
-  gap: 10px;
   padding: 0 10px;
   background: var(--color-surface);
   border-top: 1px solid var(--color-border);
   z-index: 30;
+  position: relative;
   animation: azSlideUpIn var(--duration-slow) var(--ease-out);
+}
+
+/* centered cluster: startBtn + dock as one group, absolute centered like macOS */
+.centerCluster {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  max-width: min(560px, calc(100% - 200px));
 }
 
 .startBtn {
@@ -53,13 +65,19 @@
 }
 
 .dock {
-  flex: 1;
-  min-width: 0;
   display: flex;
   align-items: center;
   gap: 6px;
   overflow-x: auto;
   scrollbar-width: none;
+  /* macOS-like pill inside bar */
+  background: rgba(255, 255, 255, 0.035);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 14px;
+  padding: 4px 8px;
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  max-width: 100%;
 }
 
 .dock::-webkit-scrollbar {
@@ -140,6 +158,11 @@
   display: flex;
   align-items: center;
   gap: 4px;
+  margin-left: auto;
+  position: relative;
+  z-index: 1;
+  background: var(--color-surface);
+  padding-left: 8px;
 }
 
 .trayBtn {
@@ -184,10 +207,75 @@
   animation: azDockBounce 420ms var(--ease-out);
 }
 
+/* responsive: avoid overlap on narrow screens */
+@media (max-width: 720px) {
+  .centerCluster {
+    position: static;
+    transform: none;
+    max-width: none;
+    flex: 1;
+    min-width: 0;
+    justify-content: center;
+  }
+  .dock {
+    flex: 1;
+    min-width: 0;
+    justify-content: flex-start;
+    overflow-x: auto;
+  }
+  .tray {
+    margin-left: 8px;
+  }
+}
+
+@media (max-width: 480px) {
+  .taskbar {
+    padding: 0 6px;
+    gap: 6px;
+  }
+  .centerCluster {
+    gap: 6px;
+  }
+  .dock {
+    gap: 4px;
+    padding: 3px 6px;
+  }
+  .dockIcon {
+    width: 32px;
+    height: 32px;
+  }
+  .clock {
+    display: none;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .startBtn,
   .dockIcon,
   .trayBtn {
     transition: none !important;
   }
+}
+
+/* Appearance live: transparency via --az-panel-opacity (0..1) from useAppliedTheme */
+.taskbar {
+  background: color-mix(in srgb, var(--color-surface) calc(var(--az-panel-opacity, 0.92) * 100%), transparent);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+.tray {
+  background: color-mix(in srgb, var(--color-surface) calc(var(--az-panel-opacity, 0.92) * 100%), transparent);
+}
+
+/* Appearance live: animationLevel via [data-anim] on :root from useAppliedTheme */
+:global([data-anim="none"]) .taskbar {
+  animation: none !important;
+}
+:global([data-anim="none"]) .startBtn,
+:global([data-anim="none"]) .dockIcon,
+:global([data-anim="none"]) .trayBtn {
+  transition: none !important;
+}
+:global([data-anim="reduced"]) .taskbar {
+  animation-duration: 120ms !important;
 }
